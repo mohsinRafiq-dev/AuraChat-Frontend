@@ -185,6 +185,30 @@ function chatReducer(state, action) {
       next.delete(String(action.userId));
       return { ...state, blockedUserIds: next };
     }
+    case 'UPDATE_MESSAGE': {
+      const items = state.messages[action.conversationId] || [];
+      return {
+        ...state,
+        messages: {
+          ...state.messages,
+          [action.conversationId]: items.map((m) =>
+            m._id === action.payload._id ? { ...m, ...action.payload } : m
+          )
+        }
+      };
+    }
+    case 'REMOVE_MESSAGE': {
+      const items = state.messages[action.conversationId] || [];
+      return {
+        ...state,
+        messages: {
+          ...state.messages,
+          [action.conversationId]: items.map((m) =>
+            m._id === action.messageId ? { ...m, isDeleted: true, text: 'This message was deleted' } : m
+          )
+        }
+      };
+    }
     case 'DELETE_CONVERSATION': {
       const nextConversations = state.conversations.filter((c) => c._id !== action.conversationId);
       const nextMessages = { ...state.messages };
@@ -431,12 +455,27 @@ export function useChat(socket, user) {
       dispatch({ type: 'SET_ONLINE_USERS', payload: onlineUserIds });
     };
 
+    const handleMessageEdited = (message) => {
+      dispatch({ type: 'UPDATE_MESSAGE', conversationId: message.conversationId, payload: message });
+    };
+
+    const handleMessageDeleted = (message) => {
+      dispatch({ type: 'REMOVE_MESSAGE', conversationId: message.conversationId, messageId: message._id });
+    };
+
+    const handleMessageReacted = (message) => {
+      dispatch({ type: 'UPDATE_MESSAGE', conversationId: message.conversationId, payload: message });
+    };
+
     socket.on(SOCKET_EVENTS.RECEIVE_MESSAGE, handleIncoming);
     socket.on(SOCKET_EVENTS.MESSAGE_DELIVERED, handleDelivered);
     socket.on(SOCKET_EVENTS.MESSAGE_READ, handleRead);
     socket.on(SOCKET_EVENTS.USER_ONLINE, handleUserOnline);
     socket.on(SOCKET_EVENTS.USER_OFFLINE, handleUserOffline);
     socket.on(SOCKET_EVENTS.USER_PRESENCE_SNAPSHOT, handlePresenceSnapshot);
+    socket.on(SOCKET_EVENTS.MESSAGE_EDITED, handleMessageEdited);
+    socket.on(SOCKET_EVENTS.MESSAGE_DELETED, handleMessageDeleted);
+    socket.on(SOCKET_EVENTS.MESSAGE_REACTED, handleMessageReacted);
     socket.io.on('reconnect', refreshAfterReconnect);
 
     return () => {
@@ -446,6 +485,9 @@ export function useChat(socket, user) {
       socket.off(SOCKET_EVENTS.USER_ONLINE, handleUserOnline);
       socket.off(SOCKET_EVENTS.USER_OFFLINE, handleUserOffline);
       socket.off(SOCKET_EVENTS.USER_PRESENCE_SNAPSHOT, handlePresenceSnapshot);
+      socket.off(SOCKET_EVENTS.MESSAGE_EDITED, handleMessageEdited);
+      socket.off(SOCKET_EVENTS.MESSAGE_DELETED, handleMessageDeleted);
+      socket.off(SOCKET_EVENTS.MESSAGE_REACTED, handleMessageReacted);
       socket.io.off('reconnect', refreshAfterReconnect);
     };
   }, [socket, loadConversations, loadMessages]);
