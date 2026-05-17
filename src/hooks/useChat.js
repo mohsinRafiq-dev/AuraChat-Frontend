@@ -439,6 +439,83 @@ export function useChat(socket, user) {
     dispatch({ type: 'UNBLOCK_USER', userId });
   }, []);
 
+  const archiveConversation = useCallback(async (conversationId) => {
+    if (!conversationId) return;
+    dispatch({ type: 'ARCHIVE_CONVERSATION', conversationId });
+    try { await api.post(`/api/conversations/${conversationId}/archive`); } catch {}
+  }, []);
+
+  const unarchiveConversation = useCallback(async (conversationId) => {
+    if (!conversationId) return;
+    dispatch({ type: 'UNARCHIVE_CONVERSATION', conversationId });
+    try { await api.delete(`/api/conversations/${conversationId}/archive`); } catch {}
+  }, []);
+
+  const setReplyTo = useCallback((message) => {
+    dispatch({ type: 'SET_REPLY_TO', payload: message });
+  }, []);
+
+  const setEditing = useCallback((messageId) => {
+    dispatch({ type: 'SET_EDITING', payload: messageId });
+  }, []);
+
+  const starMessage = useCallback((messageId) => {
+    dispatch({ type: 'STAR_MESSAGE', messageId });
+  }, []);
+
+  const unstarMessage = useCallback((messageId) => {
+    dispatch({ type: 'UNSTAR_MESSAGE', messageId });
+  }, []);
+
+  const editMessage = useCallback((messageId, text) => {
+    if (!socket?.connected || !messageId || !text?.trim()) return;
+    socket.emit(SOCKET_EVENTS.EDIT_MESSAGE, { messageId, text: text.trim() });
+  }, [socket]);
+
+  const deleteMessage = useCallback((messageId, forEveryone = false) => {
+    if (!socket?.connected || !messageId) return;
+    socket.emit(SOCKET_EVENTS.DELETE_MESSAGE, { messageId, forEveryone });
+  }, [socket]);
+
+  const reactToMessage = useCallback((messageId, emoji) => {
+    if (!socket?.connected || !messageId) return;
+    socket.emit(SOCKET_EVENTS.REACT_MESSAGE, { messageId, emoji });
+  }, [socket]);
+
+  const sendTyping = useCallback((conversationId, isTyping) => {
+    if (!socket?.connected || !conversationId) return;
+    socket.emit(isTyping ? SOCKET_EVENTS.TYPING_START : SOCKET_EVENTS.TYPING_STOP, { conversationId });
+  }, [socket]);
+
+  const sendRichMessage = useCallback(
+    (conversationId, payload, recipientId) => {
+      if (!socket?.connected || !user?.id) return;
+      const clientId = createClientId();
+      const optimistic = {
+        clientId,
+        conversationId,
+        recipientId,
+        senderId: user.id,
+        createdAt: new Date().toISOString(),
+        status: 'sending',
+        ...payload,
+      };
+
+      socket.emit(SOCKET_EVENTS.SEND_MESSAGE, optimistic, (ack) => {
+        if (ack?.success && ack.message) {
+          dispatch({ type: 'ACK_MESSAGE', conversationId, clientId, serverMessage: ack.message });
+        } else if (ack?.success) {
+          dispatch({ type: 'ACK_MESSAGE', conversationId, clientId, serverMessage: { ...optimistic, _id: ack.messageId } });
+        } else {
+          dispatch({ type: 'MESSAGE_SEND_FAILED', conversationId, clientId });
+        }
+      });
+
+      dispatch({ type: 'APPEND_MESSAGE', conversationId, payload: optimistic });
+    },
+    [socket, user]
+  );
+
   const deleteConversation = useCallback(async (conversationId) => {
     if (!conversationId) return;
     try {
@@ -505,6 +582,16 @@ export function useChat(socket, user) {
 
     const handleMessageReacted = (message) => {
       dispatch({ type: 'UPDATE_MESSAGE', conversationId: message.conversationId, payload: message });
+    };
+
+    const handleTypingStart = ({ conversationId, userId }) => {
+      if (!conversationId || !userId) return;
+      dispatch({ type: 'TYPING_START', conversationId, userId });
+    };
+
+    const handleTypingStop = ({ conversationId, userId }) => {
+      if (!conversationId || !userId) return;
+      dispatch({ type: 'TYPING_STOP', conversationId, userId });
     };
 
     socket.on(SOCKET_EVENTS.RECEIVE_MESSAGE, handleIncoming);
