@@ -8,16 +8,19 @@ const initialState = {
   conversations: [],
   selectedConversation: null,
   messages: {},
-  /** Per-conversation: more history available before oldest loaded message */
   messageHasOlder: {},
-  /** Set of userId strings currently online */
   onlineUsers: new Set(),
-  /** Set of muted conversation IDs */
   mutedConversations: new Set(),
-  /** Set of blocked peer IDs */
   blockedUserIds: new Set(),
-  /** { [conversationId]: number } — unread message count badge */
+  archivedConversations: new Set(),
+  starredMessageIds: new Set(),
   unreadCounts: {},
+  /** { [conversationId]: Set<userId> } — users currently typing */
+  typingUsers: {},
+  /** Currently selected message to reply to */
+  replyTo: null,
+  /** Currently selected message ID to edit */
+  editingMessageId: null,
   loading: false,
   error: null
 };
@@ -208,6 +211,43 @@ function chatReducer(state, action) {
           )
         }
       };
+    }
+    case 'ARCHIVE_CONVERSATION': {
+      const next = new Set(state.archivedConversations);
+      next.add(action.conversationId);
+      return { ...state, archivedConversations: next };
+    }
+    case 'UNARCHIVE_CONVERSATION': {
+      const next = new Set(state.archivedConversations);
+      next.delete(action.conversationId);
+      return { ...state, archivedConversations: next };
+    }
+    case 'STAR_MESSAGE': {
+      const next = new Set(state.starredMessageIds);
+      next.add(action.messageId);
+      return { ...state, starredMessageIds: next };
+    }
+    case 'UNSTAR_MESSAGE': {
+      const next = new Set(state.starredMessageIds);
+      next.delete(action.messageId);
+      return { ...state, starredMessageIds: next };
+    }
+    case 'SET_REPLY_TO':
+      return { ...state, replyTo: action.payload };
+    case 'SET_EDITING':
+      return { ...state, editingMessageId: action.payload };
+    case 'TYPING_START': {
+      const cur = state.typingUsers[action.conversationId] || new Set();
+      const next = new Set(cur);
+      next.add(String(action.userId));
+      return { ...state, typingUsers: { ...state.typingUsers, [action.conversationId]: next } };
+    }
+    case 'TYPING_STOP': {
+      const cur = state.typingUsers[action.conversationId];
+      if (!cur) return state;
+      const next = new Set(cur);
+      next.delete(String(action.userId));
+      return { ...state, typingUsers: { ...state.typingUsers, [action.conversationId]: next } };
     }
     case 'DELETE_CONVERSATION': {
       const nextConversations = state.conversations.filter((c) => c._id !== action.conversationId);
