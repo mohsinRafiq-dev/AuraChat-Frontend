@@ -603,6 +603,8 @@ export function useChat(socket, user) {
     socket.on(SOCKET_EVENTS.MESSAGE_EDITED, handleMessageEdited);
     socket.on(SOCKET_EVENTS.MESSAGE_DELETED, handleMessageDeleted);
     socket.on(SOCKET_EVENTS.MESSAGE_REACTED, handleMessageReacted);
+    socket.on(SOCKET_EVENTS.TYPING_START, handleTypingStart);
+    socket.on(SOCKET_EVENTS.TYPING_STOP, handleTypingStop);
     socket.io.on('reconnect', refreshAfterReconnect);
 
     return () => {
@@ -615,6 +617,8 @@ export function useChat(socket, user) {
       socket.off(SOCKET_EVENTS.MESSAGE_EDITED, handleMessageEdited);
       socket.off(SOCKET_EVENTS.MESSAGE_DELETED, handleMessageDeleted);
       socket.off(SOCKET_EVENTS.MESSAGE_REACTED, handleMessageReacted);
+      socket.off(SOCKET_EVENTS.TYPING_START, handleTypingStart);
+      socket.off(SOCKET_EVENTS.TYPING_STOP, handleTypingStop);
       socket.io.off('reconnect', refreshAfterReconnect);
     };
   }, [socket, loadConversations, loadMessages]);
