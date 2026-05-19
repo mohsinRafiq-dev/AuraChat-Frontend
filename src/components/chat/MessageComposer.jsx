@@ -172,50 +172,57 @@ export default function MessageComposer() {
         </div>
       ) : (
         <form className="composer__form" onSubmit={(e) => { e.preventDefault(); send(); }}>
-          <div className="composer__icon-wrap">
-            <button type="button" className="composer__icon-btn" title="Emoji" onClick={() => { setShowEmoji((p) => !p); setShowAttach(false); }}>
-              <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
-            </button>
-            {showEmoji && <EmojiPicker onSelect={(e) => setText((t) => t + e)} onClose={() => setShowEmoji(false)} />}
+          <div className="composer__actions-left">
+            <div style={{ position:'relative' }}>
+              <button type="button" className="composer__icon-btn" title="Emoji" onClick={() => { setShowEmoji((p) => !p); setShowAttach(false); }}>
+                <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+              </button>
+              {showEmoji && <EmojiPicker onSelect={(e) => setText((t) => t + e)} onClose={() => setShowEmoji(false)} />}
+            </div>
+            <div style={{ position:'relative' }}>
+              <button type="button" className="composer__icon-btn" title="Attach" onClick={() => { setShowAttach((p) => !p); setShowEmoji(false); }}>
+                <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+              </button>
+              {showAttach && (
+                <div className="composer__attach-menu" onClick={(e) => e.stopPropagation()}>
+                  <button type="button" className="composer__attach-item" onClick={() => imgRef.current?.click()}>
+                    <span className="composer__attach-icon" style={{ background:'#bf59cf' }}>
+                      <svg width="18" height="18" fill="none" stroke="#fff" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    </span>
+                    <span>Photos &amp; Videos</span>
+                  </button>
+                  <button type="button" className="composer__attach-item" onClick={() => docRef.current?.click()}>
+                    <span className="composer__attach-icon" style={{ background:'#5157ae' }}>
+                      <svg width="18" height="18" fill="none" stroke="#fff" strokeWidth="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    </span>
+                    <span>Document</span>
+                  </button>
+                </div>
+              )}
+              <input ref={imgRef} type="file" accept="image/*,video/*" style={{ display:'none' }} onChange={(e) => handleFile(e, 'image')} />
+              <input ref={docRef} type="file" style={{ display:'none' }} onChange={(e) => handleFile(e, 'doc')} />
+            </div>
           </div>
 
-          <div className="composer__icon-wrap">
-            <button type="button" className="composer__icon-btn" title="Attach" onClick={() => { setShowAttach((p) => !p); setShowEmoji(false); }}>
-              <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
-            </button>
-            {showAttach && (
-              <div className="composer__attach-menu" onClick={(e) => e.stopPropagation()}>
-                <button type="button" className="composer__attach-item composer__attach-item--photo" onClick={() => imgRef.current?.click()}>
-                  <span className="composer__attach-icon"><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></span>
-                  <span>Photos & Videos</span>
-                </button>
-                <button type="button" className="composer__attach-item composer__attach-item--doc" onClick={() => docRef.current?.click()}>
-                  <span className="composer__attach-icon"><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>
-                  <span>Document</span>
-                </button>
-              </div>
-            )}
-            <input ref={imgRef} type="file" accept="image/*,video/*" style={{ display:'none' }} onChange={(e) => handleFile(e, 'image')} />
-            <input ref={docRef} type="file" style={{ display:'none' }} onChange={(e) => handleFile(e, 'doc')} />
+          <div className="composer__input-wrap">
+            <textarea
+              ref={inputRef}
+              className="composer__input"
+              rows={1}
+              placeholder={blocked ? 'You blocked this user.' : socket?.connected ? 'Type a message' : 'Connecting…'}
+              value={text}
+              onChange={handleChange}
+              onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } }}
+              disabled={blocked}
+            />
           </div>
-
-          <textarea
-            ref={inputRef}
-            className="composer__input"
-            rows={1}
-            placeholder={blocked ? 'You blocked this user.' : socket?.connected ? 'Type a message' : 'Connecting…'}
-            value={text}
-            onChange={handleChange}
-            onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } }}
-            disabled={blocked}
-          />
 
           {canSend ? (
             <button className="composer__send" type="submit" aria-label="Send">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
             </button>
           ) : (
-            <button className="composer__send composer__send--mic" type="button" aria-label="Record voice" onClick={startRecording}>
+            <button className="composer__record" type="button" aria-label="Record voice" onClick={startRecording}>
               <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
             </button>
           )}
