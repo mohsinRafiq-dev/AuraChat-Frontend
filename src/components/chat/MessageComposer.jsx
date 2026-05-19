@@ -157,16 +157,16 @@ export default function MessageComposer() {
       )}
 
       {recording ? (
-        <div className="composer__recording">
-          <button type="button" className="composer__rec-cancel" onClick={() => stopRecording(true)}>
+        <div className="composer__form">
+          <button type="button" className="composer__icon-btn" onClick={() => stopRecording(true)} title="Cancel recording">
             <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
           </button>
-          <div className="composer__rec-info">
-            <span className="composer__rec-dot" />
-            <span className="composer__rec-time">{fmtRec()}</span>
-            <span className="composer__rec-label">Recording…</span>
+          <div className="composer__recording-indicator">
+            <span className="composer__recording-dot" />
+            <span className="composer__recording-time">{fmtRec()}</span>
+            <span style={{ marginLeft:'auto', fontSize:'.82rem', color:'var(--text-secondary)' }}>Recording…</span>
           </div>
-          <button type="button" className="composer__rec-send" onClick={() => stopRecording(false)}>
+          <button type="button" className="composer__send" onClick={() => stopRecording(false)} title="Send voice message">
             <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
           </button>
         </div>
