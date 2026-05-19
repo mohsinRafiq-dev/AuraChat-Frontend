@@ -120,19 +120,17 @@ function ContextMenu({ x, y, mine, onClose, onAction }) {
 
   return (
     <div ref={ref} className="msg-context-menu" style={{ top: y, left: x }}>
-      <div className="msg-context-menu__reactions">
+      <div className="msg-context-menu__emoji-row">
         {QUICK_REACTIONS.map((e) => (
-          <button key={e} type="button" className="msg-context-menu__reaction" onClick={() => onAction('react', e)}>{e}</button>
+          <button key={e} type="button" className="msg-context-menu__emoji" onClick={() => onAction('react', e)}>{e}</button>
         ))}
       </div>
-      <div className="msg-context-menu__items">
-        {items.map((it) => (
-          <button key={it.key} type="button" className={`msg-context-menu__item${it.danger ? ' msg-context-menu__item--danger' : ''}`} onClick={() => onAction(it.key)}>
-            {it.icon}
-            <span>{it.label}</span>
-          </button>
-        ))}
-      </div>
+      {items.map((it) => (
+        <button key={it.key} type="button" className={`msg-context-menu__item${it.danger ? ' msg-context-menu__item--danger' : ''}`} onClick={() => onAction(it.key)}>
+          {it.icon}
+          <span>{it.label}</span>
+        </button>
+      ))}
     </div>
   );
 }
