@@ -144,12 +144,11 @@ export default function MessageComposer() {
     <footer className="composer">
       {replyTo && (
         <div className="composer__reply-preview">
-          <div className="composer__reply-bar" />
-          <div className="composer__reply-body">
-            <div className="composer__reply-sender">
+          <div className="composer__reply-preview-body">
+            <div className="composer__reply-preview-sender">
               Replying to {typeof replyTo.senderId === 'object' ? (replyTo.senderId.username || replyTo.senderId.email) : 'message'}
             </div>
-            <div className="composer__reply-text">{replyTo.text || '(media)'}</div>
+            <div className="composer__reply-preview-text">{replyTo.text || '(media)'}</div>
           </div>
           <button type="button" className="composer__reply-close" onClick={() => setReplyTo?.(null)}>
             <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
