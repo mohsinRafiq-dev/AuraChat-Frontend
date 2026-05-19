@@ -82,17 +82,15 @@ function ReactionChips({ reactions, onClick }) {
   );
 }
 
-function TypingIndicator({ name }) {
+function TypingIndicator() {
   return (
     <li className="msg-list__item">
       <div className="msg msg--theirs">
-        <div className="msg__outer">
-          <div className="msg__bubble msg__bubble--typing">
-            <div className="typing-indicator">
-              <span className="typing-indicator__dot" style={{ animationDelay:'0s' }} />
-              <span className="typing-indicator__dot" style={{ animationDelay:'.2s' }} />
-              <span className="typing-indicator__dot" style={{ animationDelay:'.4s' }} />
-            </div>
+        <div className="typing-indicator">
+          <div className="typing-indicator__bubble">
+            <span className="typing-indicator__dot" />
+            <span className="typing-indicator__dot" />
+            <span className="typing-indicator__dot" />
           </div>
         </div>
       </div>
