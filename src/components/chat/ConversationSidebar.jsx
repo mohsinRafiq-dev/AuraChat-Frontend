@@ -23,14 +23,15 @@ export default function ConversationSidebar({ open, onClose, onConversationSelec
   const {
     conversations, selectedConversation, selectConversation,
     loading, error, onlineUsers, unreadCounts, blockedUserIds, mutedConversations,
-    archivedConversations, showArchived, setShowArchived,
+    archivedConversations,
   } = useChatContext();
 
   const [activeTab, setActiveTab] = useState('chats');
   const [searchQuery, setSearchQuery] = useState('');
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [editProfileOpen, setEditProfileOpen] = useState(false);
-  const [fileInputRef] = useState(() => ({ current: null }));
+  const [showArchived, setShowArchived] = useState(false);
+  const [newChatMode, setNewChatMode] = useState(null); // 'direct' | 'group' | null
   const profileMenuRef = useRef(null);
 
   const profileLabel = user?.username || user?.email || 'You';
@@ -84,7 +85,7 @@ export default function ConversationSidebar({ open, onClose, onConversationSelec
           <button
             type="button"
             className="sidebar__icon-btn"
-            onClick={() => setActiveTab('chats')}
+            onClick={() => setNewChatMode('direct')}
             title="New chat"
           >
             <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
