@@ -72,11 +72,11 @@ export default function NewChatModal({ mode = 'direct', onClose, onCreated }) {
     setSubmitting(true);
     setError(null);
     try {
-      const memberIds = selected.map((u) => u._id || u.id);
+      const participantIds = selected.map((u) => u._id || u.id);
       const r = await api.post('/api/groups', {
         name: groupName.trim(),
-        members: memberIds,
-        avatar: groupAvatar,
+        participantIds,
+        avatarUrl: groupAvatar,
       });
       await loadConversations();
       if (r.data.conversation) selectConversation(r.data.conversation);
