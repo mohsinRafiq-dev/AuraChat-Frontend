@@ -181,7 +181,7 @@ export default function ConversationSidebar({ open, onClose, onConversationSelec
             <button
               type="button"
               className="sidebar__archived-row"
-              onClick={() => setShowArchived?.((v) => !v)}
+              onClick={() => setShowArchived((v) => !v)}
             >
               <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/>
@@ -204,7 +204,7 @@ export default function ConversationSidebar({ open, onClose, onConversationSelec
                 </svg>
                 <p>{searchQuery ? 'No results found.' : 'No conversations yet.'}</p>
                 {!searchQuery && (
-                  <button type="button" className="btn btn--primary btn--sm" style={{ marginTop:8 }} onClick={() => {}}>
+                  <button type="button" className="btn btn--primary btn--sm" style={{ marginTop:8 }} onClick={() => setNewChatMode('direct')}>
                     Start a chat
                   </button>
                 )}
@@ -252,7 +252,7 @@ export default function ConversationSidebar({ open, onClose, onConversationSelec
               type="button"
               className="sidebar__icon-btn"
               title="New group"
-              onClick={() => {}}
+              onClick={() => setNewChatMode('group')}
             >
               <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
@@ -263,7 +263,7 @@ export default function ConversationSidebar({ open, onClose, onConversationSelec
               type="button"
               className="sidebar__icon-btn"
               title="New direct chat"
-              onClick={() => {}}
+              onClick={() => setNewChatMode('direct')}
             >
               <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
@@ -275,6 +275,7 @@ export default function ConversationSidebar({ open, onClose, onConversationSelec
       )}
 
       {editProfileOpen && <EditProfileModal onClose={() => setEditProfileOpen(false)} />}
+      {newChatMode && <NewChatModal mode={newChatMode} onClose={() => setNewChatMode(null)} />}
     </aside>
   );
 }
