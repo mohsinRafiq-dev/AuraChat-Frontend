@@ -253,7 +253,7 @@ export default function MessageThread({ onOpenSidebar, onOpenInfo, onStartCall }
       if (confirm('Delete this message for everyone?')) deleteMessage?.(m._id, true);
       else if (confirm('Delete for yourself?')) deleteMessage?.(m._id, false);
     }
-    else if (action === 'forward') alert('Forward: coming soon');
+    else if (action === 'forward') setForwardMsg(m);
     else if (action === 'edit') alert('Edit: tap the message in the composer to edit');
   };
 
