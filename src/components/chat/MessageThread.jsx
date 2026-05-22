@@ -175,6 +175,7 @@ export default function MessageThread({ onOpenSidebar, onOpenInfo, onStartCall }
   const [showHeaderMenu, setShowHeaderMenu] = useState(false);
   const [contextMenu, setContextMenu] = useState(null); // { msg, x, y }
   const [lightbox, setLightbox] = useState(null);
+  const [forwardMsg, setForwardMsg] = useState(null);
 
   const list = selectedConversation ? messages[selectedConversation._id] || [] : [];
 
