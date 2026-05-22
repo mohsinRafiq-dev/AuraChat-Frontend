@@ -424,6 +424,7 @@ export default function MessageThread({ onOpenSidebar, onOpenInfo, onStartCall }
       )}
 
       {lightbox && <Lightbox src={lightbox} onClose={() => setLightbox(null)} />}
+      {forwardMsg && <ForwardMessageModal message={forwardMsg} onClose={() => setForwardMsg(null)} />}
     </section>
   );
 }
