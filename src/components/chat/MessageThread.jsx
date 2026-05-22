@@ -2,6 +2,7 @@ import { Fragment, useEffect, useRef, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext.jsx';
 import { useChatContext } from '../../contexts/ChatContext.jsx';
 import { getPeer, peerLabel, peerUserId } from '../../utils/conversation.js';
+import ForwardMessageModal from './ForwardMessageModal.jsx';
 
 const QUICK_REACTIONS = ['👍', '❤️', '😂', '😮', '😢', '🙏'];
 const SENDER_COLORS = ['#06cf9c', '#e84e76', '#9d5cff', '#f5a623', '#3c8a99', '#d97757', '#7b64a0', '#5b8d5c'];
