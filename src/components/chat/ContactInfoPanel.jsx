@@ -146,13 +146,13 @@ export default function ContactInfoPanel({ onClose, onStartCall }) {
             const pName = p.username || p.email || 'Unknown';
             const isAdmin = (c.admins || []).includes(String(p.id));
             return (
-              <div key={p.id} style={{ display:'flex', alignItems:'center', gap:12, padding:'8px 0', borderBottom:'1px solid var(--divider)' }}>
-                <div style={{ width:38, height:38, borderRadius:'50%', background: p.avatarUrl ? undefined : avatarColor(pName), display:'grid', placeItems:'center', fontSize:'.9rem', fontWeight:700, color:'#fff', overflow:'hidden', flexShrink:0 }}>
-                  {p.avatarUrl ? <img src={p.avatarUrl} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} /> : pName.charAt(0).toUpperCase()}
+              <div key={p.id} className="info-panel__member-row">
+                <div className="info-panel__member-avatar" style={{ background: p.avatarUrl ? undefined : avatarColor(pName) }}>
+                  {p.avatarUrl ? <img src={p.avatarUrl} alt="" /> : pName.charAt(0).toUpperCase()}
                 </div>
-                <div style={{ flex:1, minWidth:0 }}>
-                  <div style={{ fontSize:'.88rem', fontWeight:500 }}>{pName}</div>
-                  {isAdmin && <div style={{ fontSize:'.72rem', color:'var(--green)' }}>Group Admin</div>}
+                <div className="flex-1">
+                  <div className="info-panel__member-name">{pName}</div>
+                  {isAdmin && <div className="info-panel__member-admin">Group Admin</div>}
                 </div>
               </div>
             );
@@ -162,18 +162,18 @@ export default function ContactInfoPanel({ onClose, onStartCall }) {
 
       {/* Settings */}
       <div className="info-panel__section">
-        <div className="info-panel__setting-row" onClick={() => setShowDisappearing((v) => !v)} style={{ cursor:'pointer' }}>
+        <div className="info-panel__setting-row cursor-pointer" onClick={() => setShowDisappearing((v) => !v)}>
           <span className="info-panel__setting-label">Disappearing messages</span>
           <span className="info-panel__setting-value">
             {c.disappearingMessages?.enabled ? `${c.disappearingMessages.duration / 3600}h` : 'Off'}
           </span>
         </div>
         {showDisappearing && (
-          <div style={{ padding:'10px 0', display:'flex', flexDirection:'column', gap:8 }}>
+          <div className="info-panel__disappear-options">
             {[
               [3600, '1 hour'], [86400, '24 hours'], [604800, '7 days'], [2592000, '30 days'],
             ].map(([val, label]) => (
-              <label key={val} style={{ display:'flex', alignItems:'center', gap:10, cursor:'pointer', fontSize:'.88rem' }}>
+              <label key={val} className="info-panel__disappear-option">
                 <input type="radio" name="disappear" value={val} checked={disappearDuration === val} onChange={() => setDisappearDuration(val)} />
                 {label}
               </label>

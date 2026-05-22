@@ -43,7 +43,7 @@ export default function EditProfileModal({ onClose }) {
 
   return (
     <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="modal edit-profile-modal" style={{ maxHeight:'85vh' }}>
+      <div className="modal edit-profile-modal">
         <div className="modal__header">
           <button type="button" className="modal__close" onClick={onClose}>
             <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
@@ -53,22 +53,13 @@ export default function EditProfileModal({ onClose }) {
             {saving ? 'Saving…' : 'Save'}
           </button>
         </div>
-        <div className="modal__body" style={{ padding:24, display:'flex', flexDirection:'column', gap:18, overflowY:'auto' }}>
-          {/* Avatar */}
+        <div className="modal__body">
           <div className="edit-profile__avatar-row">
-            <div
-              className="edit-profile__avatar"
-              style={{ background: avatar ? undefined : color, width:96, height:96, borderRadius:'50%', display:'grid', placeItems:'center', fontSize:'2.5rem', fontWeight:700, color:'#fff', overflow:'hidden', cursor:'pointer', position:'relative' }}
-              onClick={() => fileRef.current?.click()}
-            >
-              {avatar ? <img src={avatar} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} /> : name.charAt(0).toUpperCase()}
-              <span style={{ position:'absolute', inset:0, background:'rgba(0,0,0,.4)', display:'grid', placeItems:'center', opacity:0, transition:'opacity .2s', borderRadius:'50%', fontSize:'.75rem', fontWeight:700 }}
-                    onMouseEnter={(e) => e.currentTarget.style.opacity=1}
-                    onMouseLeave={(e) => e.currentTarget.style.opacity=0}
-              >Edit</span>
+            <div className="edit-profile__avatar" style={{ background: avatar ? undefined : color }} onClick={() => fileRef.current?.click()}>
+              {avatar ? <img src={avatar} alt="" /> : name.charAt(0).toUpperCase()}
             </div>
-            <input ref={fileRef} type="file" accept="image/*" style={{ display:'none' }} onChange={handleAvatarPick} />
-            <span style={{ fontSize:'.82rem', color:'var(--text-secondary)' }}>Tap to change photo</span>
+            <input ref={fileRef} type="file" accept="image/*" className="sr-only" onChange={handleAvatarPick} />
+            <span className="text-sm text-muted">Tap to change photo</span>
           </div>
 
           {error && <p className="form-error">{error}</p>}

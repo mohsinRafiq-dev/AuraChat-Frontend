@@ -120,7 +120,7 @@ function ContextMenu({ x, y, mine, onClose, onAction }) {
   items.push({ key: 'delete', label: 'Delete', danger: true, icon: <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg> });
 
   return (
-    <div ref={ref} className="msg-context-menu" style={{ top: y, left: x }}>
+    <div ref={ref} className="popover popover--fixed msg-context-menu" style={{ top: y, left: x }}>
       <div className="msg-context-menu__emoji-row">
         {QUICK_REACTIONS.map((e) => (
           <button key={e} type="button" className="msg-context-menu__emoji" onClick={() => onAction('react', e)}>{e}</button>
@@ -303,12 +303,12 @@ export default function MessageThread({ onOpenSidebar, onOpenInfo, onStartCall }
           </div>
         )}
         {showHeaderMenu && (
-          <div className="thread__menu">
-            <button type="button" className="thread__menu-item" onClick={() => { onOpenInfo?.(); setShowHeaderMenu(false); }}>Contact info</button>
-            <button type="button" className="thread__menu-item" onClick={() => { setSearchMode(true); setShowHeaderMenu(false); }}>Search</button>
-            <button type="button" className="thread__menu-item" onClick={() => setShowHeaderMenu(false)}>Mute notifications</button>
-            <button type="button" className="thread__menu-item" onClick={() => setShowHeaderMenu(false)}>Clear messages</button>
-            <button type="button" className="thread__menu-item thread__menu-item--danger" onClick={() => setShowHeaderMenu(false)}>Delete chat</button>
+          <div className="popover thread__menu">
+            <button type="button" className="popover__item" onClick={() => { onOpenInfo?.(); setShowHeaderMenu(false); }}>Contact info</button>
+            <button type="button" className="popover__item" onClick={() => { setSearchMode(true); setShowHeaderMenu(false); }}>Search</button>
+            <button type="button" className="popover__item" onClick={() => setShowHeaderMenu(false)}>Mute notifications</button>
+            <button type="button" className="popover__item" onClick={() => setShowHeaderMenu(false)}>Clear messages</button>
+            <button type="button" className="thread__menu-item popover__item--danger" onClick={() => setShowHeaderMenu(false)}>Delete chat</button>
           </div>
         )}
       </header>
@@ -377,7 +377,7 @@ export default function MessageThread({ onOpenSidebar, onOpenInfo, onStartCall }
                           <video className="msg__image" src={m.mediaUrl} controls />
                         )}
                         {m.mediaUrl && m.mediaType?.startsWith('audio') && !isDeleted && (
-                          <audio src={m.mediaUrl} controls style={{ width:'100%' }} />
+                          <audio src={m.mediaUrl} controls className="w-full" />
                         )}
                         {m.mediaUrl && !m.mediaType?.match(/^(image|video|audio)/) && !isDeleted && (
                           <a href={m.mediaUrl} download className="msg__doc">

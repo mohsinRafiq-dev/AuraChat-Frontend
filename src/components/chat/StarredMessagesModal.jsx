@@ -33,14 +33,14 @@ export default function StarredMessagesModal({ onClose }) {
           </button>
           <span className="modal__title">Starred messages</span>
         </div>
-        <div className="modal__body" style={{ padding:'12px' }}>
+        <div className="modal__body p-3">
           {starred.length === 0 && (
-            <div className="modal__empty" style={{ padding:'40px 20px' }}>
-              <svg width="64" height="64" fill="none" stroke="var(--icon)" strokeWidth="1.2" viewBox="0 0 24 24" style={{ margin:'0 auto 12px' }}>
+            <div className="starred-empty">
+              <svg className="starred-empty__icon" width="64" height="64" fill="none" stroke="currentColor" strokeWidth="1.2" viewBox="0 0 24 24">
                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
               </svg>
-              <p style={{ margin:0 }}>No starred messages</p>
-              <p style={{ fontSize:'.78rem', marginTop:8, color:'var(--text-secondary)' }}>Tap and hold any message to star it.</p>
+              <p>No starred messages</p>
+              <p className="text-xs text-muted mt-2">Tap and hold any message to star it.</p>
             </div>
           )}
           {starred.map(({ msg, conv }) => {
@@ -52,9 +52,9 @@ export default function StarredMessagesModal({ onClose }) {
                   {mine ? 'You' : (typeof msg.senderId === 'object' ? msg.senderId.username || msg.senderId.email : 'Them')} → {label}
                 </div>
                 <p className="starred-msg-card__text">{msg.text || '(media)'}</p>
-                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                <div className="starred-msg-card__footer">
                   <span className="starred-msg-card__time">{fmtTime(msg.createdAt)}</span>
-                  <button type="button" style={{ border:'none', background:'transparent', color:'var(--text-secondary)', cursor:'pointer', fontSize:'.78rem' }} onClick={(e) => { e.stopPropagation(); unstarMessage?.(msg._id); }}>
+                  <button type="button" className="starred-msg-card__unstar" onClick={(e) => { e.stopPropagation(); unstarMessage?.(msg._id); }}>
                     Unstar
                   </button>
                 </div>

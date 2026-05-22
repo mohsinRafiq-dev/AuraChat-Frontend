@@ -80,7 +80,7 @@ export default function CallOverlay({ call, onEnd }) {
       ) : (
         <div className="call-overlay__info">
           <div className="call-overlay__avatar" style={{ background: peer?.avatarUrl ? undefined : peerColor }}>
-            {peer?.avatarUrl ? <img src={peer.avatarUrl} alt="" style={{ width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%' }} /> : peerName.charAt(0).toUpperCase()}
+            {peer?.avatarUrl ? <img src={peer.avatarUrl} alt="" /> : peerName.charAt(0).toUpperCase()}
           </div>
           <div className="call-overlay__name">{peerName}</div>
           <div className="call-overlay__status">

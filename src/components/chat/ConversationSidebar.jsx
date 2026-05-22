@@ -73,7 +73,7 @@ export default function ConversationSidebar({ open, onClose, onConversationSelec
 
       {/* Header */}
       <div className="sidebar__header">
-        <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+        <div className="sidebar__header-left">
           <button
             type="button"
             className="sidebar__icon-btn sidebar__icon-btn--close"
@@ -115,7 +115,7 @@ export default function ConversationSidebar({ open, onClose, onConversationSelec
 
       {/* Profile Menu */}
       {profileMenuOpen && (
-        <div className="sidebar__profile-menu" ref={profileMenuRef}>
+        <div className="popover popover--lg sidebar__profile-menu" ref={profileMenuRef}>
           <div className="sidebar__profile-menu-header">
             <div className="sidebar__profile-menu-avatar" style={{ background: user?.avatarUrl ? undefined : profileColor }}>
               {user?.avatarUrl ? <img src={user.avatarUrl} alt="" /> : profileInitial}
@@ -163,9 +163,7 @@ export default function ConversationSidebar({ open, onClose, onConversationSelec
           >
             {label}
             {key === 'chats' && totalUnread > 0 && (
-              <span style={{ marginLeft:4, background:'var(--badge)', color:'#fff', borderRadius:8, padding:'0 5px', fontSize:'.68rem', fontWeight:700 }}>
-                {totalUnread > 99 ? '99+' : totalUnread}
-              </span>
+              <span className="sidebar__tab-badge">{totalUnread > 99 ? '99+' : totalUnread}</span>
             )}
           </button>
         ))}
@@ -213,12 +211,12 @@ export default function ConversationSidebar({ open, onClose, onConversationSelec
             )}
             {!loading && filteredConversations.length === 0 && (
               <div className="sidebar__empty">
-                <svg width="48" height="48" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24" style={{ color:'var(--icon)', margin:'0 auto' }}>
+                <svg width="48" height="48" fill="none" stroke="var(--icon)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24" className="sidebar__empty-icon">
                   <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                 </svg>
                 <p>{searchQuery ? 'No results found.' : 'No conversations yet.'}</p>
                 {!searchQuery && (
-                  <button type="button" className="btn btn--primary btn--sm" style={{ marginTop:8 }} onClick={() => setNewChatMode('direct')}>
+                  <button type="button" className="btn btn--primary btn--sm mt-2" onClick={() => setNewChatMode('direct')}>
                     Start a chat
                   </button>
                 )}
@@ -262,7 +260,7 @@ export default function ConversationSidebar({ open, onClose, onConversationSelec
               </span>
             )}
           </button>
-          <div style={{ display:'flex', gap:4 }}>
+          <div className="sidebar__actions">
             <button
               type="button"
               className="sidebar__icon-btn"

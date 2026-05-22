@@ -38,14 +38,14 @@ export default function CallsTab({ onStartCall }) {
       </button>
 
       {recentCalls.length === 0 ? (
-        <div className="sidebar__empty" style={{ paddingTop: 40 }}>
+        <div className="sidebar__empty">
           <p>No recent calls.</p>
         </div>
       ) : (
         recentCalls.map((call) => (
           <div key={call.id} className="call-row">
             <div className="call-row__avatar" style={{ background: call.avatarUrl ? undefined : avatarColor(call.name) }}>
-              {call.avatarUrl ? <img src={call.avatarUrl} alt={call.name} style={{ width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%' }} /> : call.name.charAt(0).toUpperCase()}
+              {call.avatarUrl ? <img src={call.avatarUrl} alt={call.name} /> : call.name.charAt(0).toUpperCase()}
             </div>
             <div className="call-row__body">
               <div className="call-row__name">{call.name}</div>
@@ -83,17 +83,17 @@ export default function CallsTab({ onStartCall }) {
 
 function CallDirectionIcon({ type }) {
   if (type === 'incoming') return (
-    <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ color:'var(--ok)' }}>
+    <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" className="text-green">
       <line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 7 17 17 17"/>
     </svg>
   );
   if (type === 'outgoing') return (
-    <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ color:'var(--text-secondary)' }}>
+    <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" className="text-muted">
       <line x1="7" y1="7" x2="17" y2="17"/><polyline points="17 7 17 17 7 17"/>
     </svg>
   );
   return (
-    <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ color:'var(--danger)' }}>
+    <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" className="text-danger">
       <line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 7 17 17 17"/>
     </svg>
   );

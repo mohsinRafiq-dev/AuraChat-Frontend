@@ -53,11 +53,9 @@ export default function StatusViewer({ statuses, startIndex = 0, onClose }) {
       <div className="status-viewer__header">
         <div className="status-viewer__avatar">
           {status.userId?.avatarUrl ? (
-            <img src={status.userId.avatarUrl} alt="" style={{ width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%' }} />
+            <img src={status.userId.avatarUrl} alt="" />
           ) : (
-            <div style={{ width:38, height:38, borderRadius:'50%', background:'#3c8a99', display:'grid', placeItems:'center', fontWeight:700, color:'#fff' }}>
-              {name.charAt(0).toUpperCase()}
-            </div>
+            <div className="status-viewer__avatar-fallback">{name.charAt(0).toUpperCase()}</div>
           )}
         </div>
         <div>
@@ -74,7 +72,7 @@ export default function StatusViewer({ statuses, startIndex = 0, onClose }) {
         style={{ background: status.type === 'text' ? (status.backgroundColor || '#128C7E') : '#000' }}
       >
         {status.type === 'text' && (
-          <div className="status-viewer__text-content" style={{ fontFamily: status.fontStyle === 'serif' ? 'Georgia,serif' : 'inherit' }}>
+          <div className="status-viewer__text-content" style={status.fontStyle === 'serif' ? { fontFamily:'Georgia,serif' } : undefined}>
             {status.text}
           </div>
         )}
@@ -84,9 +82,9 @@ export default function StatusViewer({ statuses, startIndex = 0, onClose }) {
       </div>
 
       {/* Navigation tap zones */}
-      <div style={{ position:'absolute', inset:0, display:'flex', pointerEvents:'none', top:60 }}>
-        <div style={{ flex:1, pointerEvents:'auto', cursor:'pointer' }} onClick={() => current > 0 && setCurrent((c) => c - 1)} />
-        <div style={{ flex:1, pointerEvents:'auto', cursor:'pointer' }} onClick={() => { if (current < statuses.length - 1) setCurrent((c) => c + 1); else onClose(); }} />
+      <div className="status-viewer__nav">
+        <div className="status-viewer__nav-zone" onClick={() => current > 0 && setCurrent((c) => c - 1)} />
+        <div className="status-viewer__nav-zone" onClick={() => { if (current < statuses.length - 1) setCurrent((c) => c + 1); else onClose(); }} />
       </div>
 
       {/* Reply input */}

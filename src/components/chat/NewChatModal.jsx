@@ -149,7 +149,7 @@ export default function NewChatModal({ mode = 'direct', onClose, onCreated }) {
                     <div className="modal__user-avatar" style={{ background: u.avatarUrl ? undefined : avatarColor(name) }}>
                       {u.avatarUrl ? <img src={u.avatarUrl} alt="" /> : name.charAt(0).toUpperCase()}
                     </div>
-                    <div style={{ flex:1, minWidth:0 }}>
+                    <div className="flex-1">
                       <div className="modal__user-name">{name}</div>
                       {u.email && u.username && <div className="modal__user-email">{u.email}</div>}
                       {u.bio && <div className="modal__user-email">{u.bio}</div>}
@@ -162,24 +162,21 @@ export default function NewChatModal({ mode = 'direct', onClose, onCreated }) {
                   </div>
                 );
               })}
-              {error && <div className="modal__empty" style={{ color:'var(--danger)' }}>{error}</div>}
+              {error && <div className="modal__empty text-danger">{error}</div>}
             </div>
           </>
         )}
 
         {step === 'name' && (
-          <div className="modal__body" style={{ padding:20, display:'flex', flexDirection:'column', gap:16 }}>
-            <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:12 }}>
-              <div
-                onClick={() => avatarRef.current?.click()}
-                style={{ width:96, height:96, borderRadius:'50%', background: groupAvatar ? undefined : 'var(--green)', cursor:'pointer', overflow:'hidden', display:'grid', placeItems:'center', color:'#fff', fontSize:'2rem' }}
-              >
-                {groupAvatar ? <img src={groupAvatar} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} /> : (
+          <div className="group-form-body">
+            <div className="group-avatar-picker">
+              <button type="button" className="group-avatar-picker__btn" onClick={() => avatarRef.current?.click()}>
+                {groupAvatar ? <img src={groupAvatar} alt="" /> : (
                   <svg width="34" height="34" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                 )}
-              </div>
-              <input ref={avatarRef} type="file" accept="image/*" style={{ display:'none' }} onChange={handleAvatarPick} />
-              <span style={{ fontSize:'.78rem', color:'var(--text-secondary)' }}>Tap to add group photo</span>
+              </button>
+              <input ref={avatarRef} type="file" accept="image/*" className="sr-only" onChange={handleAvatarPick} />
+              <span className="group-avatar-picker__hint">Tap to add group photo</span>
             </div>
             <input
               className="modal__group-name-input"
@@ -190,11 +187,11 @@ export default function NewChatModal({ mode = 'direct', onClose, onCreated }) {
               autoFocus
               maxLength={50}
             />
-            <div style={{ fontSize:'.82rem', color:'var(--text-secondary)' }}>
+            <div className="group-form-body__members">
               Members: {selected.map((u) => u.username || u.email).join(', ')}
             </div>
-            {error && <div style={{ color:'var(--danger)', fontSize:'.85rem' }}>{error}</div>}
-            <div className="modal__footer" style={{ display:'flex', gap:10, padding:0, border:'none' }}>
+            {error && <div className="text-danger text-sm">{error}</div>}
+            <div className="group-form-body__actions">
               <button type="button" className="btn btn--ghost btn--block" onClick={() => setStep('pick')} disabled={submitting}>Back</button>
               <button type="button" className="btn btn--primary btn--block" onClick={handleCreateGroup} disabled={!groupName.trim() || submitting}>
                 {submitting ? 'Creating…' : 'Create group'}

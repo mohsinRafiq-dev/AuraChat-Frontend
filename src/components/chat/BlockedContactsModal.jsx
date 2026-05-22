@@ -46,11 +46,11 @@ export default function BlockedContactsModal({ onClose }) {
         <div className="modal__body">
           {loading && <div className="modal__empty">Loading…</div>}
           {!loading && users.length === 0 && (
-            <div className="modal__empty" style={{ padding:'40px 20px' }}>
-              <svg width="56" height="56" fill="none" stroke="var(--icon)" strokeWidth="1.2" viewBox="0 0 24 24" style={{ margin:'0 auto 12px' }}>
+            <div className="starred-empty">
+              <svg className="starred-empty__icon" width="56" height="56" fill="none" stroke="currentColor" strokeWidth="1.2" viewBox="0 0 24 24">
                 <circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
               </svg>
-              <p style={{ margin:0 }}>No blocked contacts</p>
+              <p className="text-muted">No blocked contacts</p>
             </div>
           )}
           {users.map((u) => {
@@ -60,7 +60,7 @@ export default function BlockedContactsModal({ onClose }) {
                 <div className="modal__user-avatar" style={{ background: u.avatarUrl ? undefined : avatarColor(name) }}>
                   {u.avatarUrl ? <img src={u.avatarUrl} alt="" /> : name.charAt(0).toUpperCase()}
                 </div>
-                <div style={{ flex:1, minWidth:0 }}>
+                <div className="flex-1">
                   <div className="modal__user-name">{name}</div>
                   {u.email && u.username && <div className="modal__user-email">{u.email}</div>}
                 </div>

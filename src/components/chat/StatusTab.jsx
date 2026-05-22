@@ -96,9 +96,9 @@ export default function StatusTab() {
       )}
 
       {contacts.length === 0 && myStatuses.length === 0 && (
-        <div className="sidebar__empty" style={{ paddingTop: 40 }}>
+        <div className="sidebar__empty">
           <p>No status updates yet.</p>
-          <button type="button" className="btn btn--primary btn--sm" style={{ marginTop: 8 }} onClick={() => setCreateOpen(true)}>
+          <button type="button" className="btn btn--primary btn--sm mt-2" onClick={() => setCreateOpen(true)}>
             Add status
           </button>
         </div>

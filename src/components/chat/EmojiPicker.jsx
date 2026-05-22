@@ -19,15 +19,14 @@ export default function EmojiPicker({ onSelect, onClose }) {
     : CATEGORIES[cat].emojis;
 
   return (
-    <div className="emoji-picker" onClick={(e) => e.stopPropagation()}>
-      {/* Search */}
-      <div style={{ padding:'8px 10px', borderBottom:'1px solid var(--divider)' }}>
+    <div className="popover emoji-picker" onClick={(e) => e.stopPropagation()}>
+      <div className="emoji-picker__search">
         <input
           type="text"
+          className="emoji-picker__search-input"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search emoji…"
-          style={{ width:'100%', padding:'6px 10px', background:'var(--input-bg)', border:'none', borderRadius:6, color:'var(--text)', fontFamily:'inherit', fontSize:'.82rem', outline:'none' }}
           autoFocus
         />
       </div>

@@ -6,6 +6,8 @@ import { AuthProvider } from './contexts/AuthContext.jsx';
 import { SocketProvider } from './contexts/SocketContext.jsx';
 import { ThemeProvider } from './contexts/ThemeContext.jsx';
 import './styles.css';
+import { applySettings } from './components/chat/SettingsModal.jsx';
+applySettings();
 
 const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 

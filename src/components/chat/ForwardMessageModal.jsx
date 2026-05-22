@@ -75,7 +75,7 @@ export default function ForwardMessageModal({ message, onClose }) {
                 <div className="modal__user-avatar" style={{ background: c.groupAvatar || c.peer?.avatarUrl ? undefined : avatarColor(label) }}>
                   {c.peer?.avatarUrl ? <img src={c.peer.avatarUrl} alt="" /> : c.groupAvatar ? <img src={c.groupAvatar} alt="" /> : initial}
                 </div>
-                <div style={{ flex:1, minWidth:0 }}>
+                <div className="flex-1">
                   <div className="modal__user-name">{label}</div>
                   {c.isGroup && <div className="modal__user-email">{c.participants?.length || 0} members</div>}
                 </div>

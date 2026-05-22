@@ -164,7 +164,7 @@ export default function MessageComposer() {
           <div className="composer__recording-indicator">
             <span className="composer__recording-dot" />
             <span className="composer__recording-time">{fmtRec()}</span>
-            <span style={{ marginLeft:'auto', fontSize:'.82rem', color:'var(--text-secondary)' }}>Recording…</span>
+            <span className="composer__recording-label">Recording…</span>
           </div>
           <button type="button" className="composer__send" onClick={() => stopRecording(false)} title="Send voice message">
             <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
@@ -173,18 +173,18 @@ export default function MessageComposer() {
       ) : (
         <form className="composer__form" onSubmit={(e) => { e.preventDefault(); send(); }}>
           <div className="composer__actions-left">
-            <div style={{ position:'relative' }}>
+            <div className="composer__icon-wrap">
               <button type="button" className="composer__icon-btn" title="Emoji" onClick={() => { setShowEmoji((p) => !p); setShowAttach(false); }}>
                 <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
               </button>
               {showEmoji && <EmojiPicker onSelect={(e) => setText((t) => t + e)} onClose={() => setShowEmoji(false)} />}
             </div>
-            <div style={{ position:'relative' }}>
+            <div className="composer__icon-wrap">
               <button type="button" className="composer__icon-btn" title="Attach" onClick={() => { setShowAttach((p) => !p); setShowEmoji(false); }}>
                 <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
               </button>
               {showAttach && (
-                <div className="composer__attach-menu" onClick={(e) => e.stopPropagation()}>
+                <div className="popover composer__attach-menu" onClick={(e) => e.stopPropagation()}>
                   <button type="button" className="composer__attach-item" onClick={() => imgRef.current?.click()}>
                     <span className="composer__attach-icon" style={{ background:'#bf59cf' }}>
                       <svg width="18" height="18" fill="none" stroke="#fff" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
@@ -199,8 +199,8 @@ export default function MessageComposer() {
                   </button>
                 </div>
               )}
-              <input ref={imgRef} type="file" accept="image/*,video/*" style={{ display:'none' }} onChange={(e) => handleFile(e, 'image')} />
-              <input ref={docRef} type="file" style={{ display:'none' }} onChange={(e) => handleFile(e, 'doc')} />
+              <input ref={imgRef} type="file" accept="image/*,video/*" className="sr-only" onChange={(e) => handleFile(e, 'image')} />
+              <input ref={docRef} type="file" className="sr-only" onChange={(e) => handleFile(e, 'doc')} />
             </div>
           </div>
 
