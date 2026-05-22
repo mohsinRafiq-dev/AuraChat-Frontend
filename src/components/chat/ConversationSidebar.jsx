@@ -7,6 +7,8 @@ import NewChatModal from './NewChatModal.jsx';
 import StatusTab from './StatusTab.jsx';
 import CallsTab from './CallsTab.jsx';
 import EditProfileModal from './EditProfileModal.jsx';
+import SettingsModal from './SettingsModal.jsx';
+import StarredMessagesModal from './StarredMessagesModal.jsx';
 
 const AVATAR_COLORS = [
   '#d97757','#7b64a0','#3c8a99','#5b8d5c',
