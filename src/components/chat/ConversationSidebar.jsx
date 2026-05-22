@@ -37,6 +37,7 @@ export default function ConversationSidebar({ open, onClose, onConversationSelec
   const [showSettings, setShowSettings] = useState(false);
   const [showStarred, setShowStarred] = useState(false);
   const profileMenuRef = useRef(null);
+  const profileTriggerRefs = useRef([]);
 
   const profileLabel = user?.username || user?.email || 'You';
   const profileInitial = profileLabel.charAt(0).toUpperCase();
@@ -45,9 +46,9 @@ export default function ConversationSidebar({ open, onClose, onConversationSelec
   useEffect(() => {
     if (!profileMenuOpen) return;
     const handler = (e) => {
-      if (profileMenuRef.current && !profileMenuRef.current.contains(e.target)) {
-        setProfileMenuOpen(false);
-      }
+      if (profileMenuRef.current?.contains(e.target)) return;
+      if (profileTriggerRefs.current.some((el) => el && el.contains(e.target))) return;
+      setProfileMenuOpen(false);
     };
     window.addEventListener('mousedown', handler);
     return () => window.removeEventListener('mousedown', handler);
@@ -98,6 +99,7 @@ export default function ConversationSidebar({ open, onClose, onConversationSelec
             </svg>
           </button>
           <button
+            ref={(el) => { profileTriggerRefs.current[0] = el; }}
             type="button"
             className="sidebar__icon-btn"
             onClick={() => setProfileMenuOpen((v) => !v)}
@@ -246,6 +248,7 @@ export default function ConversationSidebar({ open, onClose, onConversationSelec
       {activeTab === 'chats' && (
         <div className="sidebar__profile-trigger-wrapper">
           <button
+            ref={(el) => { profileTriggerRefs.current[1] = el; }}
             type="button"
             className="sidebar__profile-trigger"
             onClick={() => setProfileMenuOpen((v) => !v)}
