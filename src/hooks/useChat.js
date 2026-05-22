@@ -4,6 +4,36 @@ import { SOCKET_EVENTS } from '../services/socketEvents.js';
 import { createClientId } from '../lib/ids.js';
 import { peerUserId } from '../utils/conversation.js';
 
+// Short ping tone for incoming messages (WebAudio — no asset needed)
+let audioCtx = null;
+function playPing() {
+  try {
+    const settings = JSON.parse(localStorage.getItem('aurachat-settings') || '{}');
+    if (settings.sound === false) return;
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.frequency.value = 880; o.type = 'sine';
+    g.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.15, audioCtx.currentTime + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.25);
+    o.connect(g).connect(audioCtx.destination);
+    o.start(); o.stop(audioCtx.currentTime + 0.3);
+  } catch {}
+}
+
+function notify(message) {
+  const settings = (() => { try { return JSON.parse(localStorage.getItem('aurachat-settings') || '{}'); } catch { return {}; } })();
+  playPing();
+  if (!('Notification' in window)) return;
+  if (Notification.permission !== 'granted') return;
+  if (settings.notifications === false) return;
+  if (document.visibilityState === 'visible') return;
+  try {
+    const sender = typeof message.senderId === 'object' ? (message.senderId.username || message.senderId.email) : 'New message';
+    new Notification(sender, { body: message.text || '(media)', tag: message.conversationId, silent: true });
+  } catch {}
+}
+
 const initialState = {
   conversations: [],
   selectedConversation: null,
