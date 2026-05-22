@@ -429,14 +429,16 @@ export function useChat(socket, user) {
     dispatch({ type: 'UNMUTE_CONVERSATION', conversationId });
   }, []);
 
-  const blockUser = useCallback((userId) => {
+  const blockUser = useCallback(async (userId) => {
     if (!userId) return;
     dispatch({ type: 'BLOCK_USER', userId });
+    try { await api.post(`/api/users/${userId}/block`); } catch {}
   }, []);
 
-  const unblockUser = useCallback((userId) => {
+  const unblockUser = useCallback(async (userId) => {
     if (!userId) return;
     dispatch({ type: 'UNBLOCK_USER', userId });
+    try { await api.delete(`/api/users/${userId}/block`); } catch {}
   }, []);
 
   const archiveConversation = useCallback(async (conversationId) => {
@@ -535,11 +537,11 @@ export function useChat(socket, user) {
 
     const handleIncoming = (message) => {
       dispatch({ type: 'APPEND_MESSAGE', conversationId: message.conversationId, payload: message });
-      // If this conversation is NOT currently open, increment unread badge
-      if (selectedRef.current?._id !== message.conversationId) {
+      const isOpen = selectedRef.current?._id === message.conversationId;
+      if (!isOpen) {
         dispatch({ type: 'INCREMENT_UNREAD', conversationId: message.conversationId });
+        notify(message);
       } else if (socket?.connected) {
-        // Conversation is open — mark as read immediately
         socket.emit(SOCKET_EVENTS.MARK_READ, { conversationId: message.conversationId });
       }
     };
