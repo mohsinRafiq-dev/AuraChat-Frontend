@@ -34,6 +34,8 @@ export default function ConversationSidebar({ open, onClose, onConversationSelec
   const [editProfileOpen, setEditProfileOpen] = useState(false);
   const [showArchived, setShowArchived] = useState(false);
   const [newChatMode, setNewChatMode] = useState(null); // 'direct' | 'group' | null
+  const [showSettings, setShowSettings] = useState(false);
+  const [showStarred, setShowStarred] = useState(false);
   const profileMenuRef = useRef(null);
 
   const profileLabel = user?.username || user?.email || 'You';
