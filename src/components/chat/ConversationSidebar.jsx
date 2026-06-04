@@ -74,16 +74,6 @@ export default function ConversationSidebar({ mobile, onConversationSelect, onSt
       {/* Header */}
       <div className="sidebar__header">
         <div className="sidebar__header-left">
-          <button
-            type="button"
-            className="sidebar__icon-btn sidebar__icon-btn--close"
-            onClick={onClose}
-            aria-label="Close"
-          >
-            <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
-              <path d="M18 6L6 18M6 6l12 12"/>
-            </svg>
-          </button>
           <span className="sidebar__brand">AuraChat</span>
         </div>
         <div className="sidebar__actions">
