@@ -19,7 +19,7 @@ function avatarColor(name) {
   return AVATAR_COLORS[name.charCodeAt(0) % AVATAR_COLORS.length];
 }
 
-export default function ConversationSidebar({ open, onClose, onConversationSelect, onStartCall }) {
+export default function ConversationSidebar({ mobile, onConversationSelect, onStartCall }) {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const {
@@ -69,7 +69,7 @@ export default function ConversationSidebar({ open, onClose, onConversationSelec
   const archivedCount = conversations.filter((c) => archivedConversations?.has(c._id)).length;
 
   return (
-    <aside className={`sidebar${open ? ' sidebar--open' : ''}`} aria-label="Conversations">
+    <aside className={`sidebar${mobile ? ' sidebar--mobile' : ''}`} aria-label="Conversations">
 
       {/* Header */}
       <div className="sidebar__header">
