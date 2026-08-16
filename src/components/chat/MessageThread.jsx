@@ -239,6 +239,39 @@ export default function MessageThread({ onOpenSidebar, onOpenInfo, onStartCall }
     setContextMenu({ msg, x, y });
   };
 
+  // Long-press for touch devices — 500ms hold opens the context menu
+  const longPressRef = useRef({ timer: null, fired: false, x: 0, y: 0, startX: 0, startY: 0 });
+  const handleTouchStart = (e, msg) => {
+    const t = e.touches?.[0];
+    if (!t) return;
+    longPressRef.current.fired = false;
+    longPressRef.current.startX = t.clientX;
+    longPressRef.current.startY = t.clientY;
+    longPressRef.current.timer = setTimeout(() => {
+      longPressRef.current.fired = true;
+      const x = Math.min(t.clientX, window.innerWidth - 240);
+      const y = Math.min(t.clientY, window.innerHeight - 360);
+      setContextMenu({ msg, x, y });
+      if ('vibrate' in navigator) try { navigator.vibrate(15); } catch {}
+    }, 500);
+  };
+  const handleTouchMove = (e) => {
+    const t = e.touches?.[0];
+    if (!t || !longPressRef.current.timer) return;
+    const dx = Math.abs(t.clientX - longPressRef.current.startX);
+    const dy = Math.abs(t.clientY - longPressRef.current.startY);
+    if (dx > 8 || dy > 8) {
+      clearTimeout(longPressRef.current.timer);
+      longPressRef.current.timer = null;
+    }
+  };
+  const handleTouchEnd = () => {
+    if (longPressRef.current.timer) {
+      clearTimeout(longPressRef.current.timer);
+      longPressRef.current.timer = null;
+    }
+  };
+
   const handleAction = (action, payload) => {
     const m = contextMenu?.msg;
     setContextMenu(null);
@@ -357,7 +390,15 @@ export default function MessageThread({ onOpenSidebar, onOpenInfo, onStartCall }
                 {showSep && <DateSeparator date={m.createdAt} />}
                 <li className="msg-list__item">
                   <div className={`msg ${mine ? 'msg--mine' : 'msg--theirs'}`}>
-                    <div className="msg__outer" onContextMenu={(e) => handleContextOpen(e, m)} onDoubleClick={() => reactToMessage?.(m._id, '❤️')}>
+                    <div
+                      className="msg__outer"
+                      onContextMenu={(e) => handleContextOpen(e, m)}
+                      onDoubleClick={() => reactToMessage?.(m._id, '❤️')}
+                      onTouchStart={(e) => handleTouchStart(e, m)}
+                      onTouchMove={handleTouchMove}
+                      onTouchEnd={handleTouchEnd}
+                      onTouchCancel={handleTouchEnd}
+                    >
                       <div className="msg__bubble">
                         {isGroup && !mine && senderName && (
                           <div className="msg__sender-name" style={{ color: senderColor(senderId) }}>{senderName}</div>
