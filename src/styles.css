@@ -821,19 +821,17 @@ button { font-family: inherit; }
 
 /* ── Responsive ──────────────────────────────────────────────────────────── */
 
-/* Tablet & below */
+/* Tablet & below — stack navigation: only sidebar OR thread visible, never both */
 @media (max-width: 840px) {
-  .chat-app { position:relative; }
-  .sidebar {
-    position:fixed; inset:0 auto 0 0; z-index:20;
-    transform:translateX(-100%); transition:transform var(--transition-slow) ease;
-    width:min(90vw, 360px);
+  .chat-app--mobile { position:relative; }
+
+  /* On mobile, sidebar is a full screen (rendered conditionally by ChatLayout). */
+  .sidebar--mobile {
+    width:100vw; max-width:none; min-width:0; flex-shrink:1;
+    border-right:none;
     padding-top:env(safe-area-inset-top);
     padding-bottom:env(safe-area-inset-bottom);
   }
-  .sidebar--open { transform:none; }
-  .sidebar__icon-btn--close { display:grid; }
-  .sidebar__backdrop { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:15; animation:fade-in .15s ease; }
 
   .thread__action-btn--back { display:grid; }
   .thread__header { padding-top:env(safe-area-inset-top); }
