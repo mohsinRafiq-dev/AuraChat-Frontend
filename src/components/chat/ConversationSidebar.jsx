@@ -14,6 +14,31 @@ const AVATAR_COLORS = [
   '#d97757','#7b64a0','#3c8a99','#5b8d5c',
   '#9c6644','#4a7fa5','#8e5e8e','#5c7a3e',
 ];
+/**
+ * Preview line for a conversation row.
+ *
+ * A voice note or a photo sent without a caption has empty `text`, which made
+ * the row read "No messages yet" even though the chat had just been used.
+ * Fall back to a label describing the attachment, the way every messenger does.
+ */
+const MEDIA_LABELS = {
+  voice: '🎤 Voice message',
+  audio: '🎤 Voice message',
+  image: '📷 Photo',
+  video: '🎥 Video',
+  file: '📎 Attachment',
+  location: '📍 Location',
+  contact: '👤 Contact',
+  sticker: 'Sticker'
+};
+
+function previewText(lastMessage) {
+  if (!lastMessage) return '';
+  const text = (lastMessage.text || '').trim();
+  if (text) return text;
+  return MEDIA_LABELS[lastMessage.type] || '';
+}
+
 function avatarColor(name) {
   if (!name) return AVATAR_COLORS[0];
   return AVATAR_COLORS[name.charCodeAt(0) % AVATAR_COLORS.length];
@@ -318,8 +343,8 @@ function ConvRow({ conv, active, userId, onlineUsers, unreadCounts, blockedUserI
           )}
         </span>
         <span className="conv-row__bottom-line">
-          <span className={`conv-row__preview${hasUnread ? ' conv-row__preview--unread' : ''}${!conv.lastMessage?.text ? ' conv-row__preview--empty' : ''}`}>
-            {conv.lastMessage?.text || 'No messages yet'}
+          <span className={`conv-row__preview${hasUnread ? ' conv-row__preview--unread' : ''}${!previewText(conv.lastMessage) ? ' conv-row__preview--empty' : ''}`}>
+            {previewText(conv.lastMessage) || 'No messages yet'}
           </span>
           {isBlocked && <span className="conv-row__status conv-row__status--blocked">Blocked</span>}
           {!isBlocked && isMuted && <span className="conv-row__status conv-row__status--muted">Muted</span>}

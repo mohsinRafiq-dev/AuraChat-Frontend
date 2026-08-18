@@ -36,6 +36,8 @@
   --active: #2A3942;
   --msg-out: #005C4B;
   --msg-in: #202C33;
+  --msg-out-meta: rgba(255,255,255,.60);
+  --msg-out-tick: rgba(255,255,255,.65);
   --text: #E9EDEF;
   --text-secondary: #8696A0;
   --icon: #8696A0;
@@ -63,6 +65,11 @@ html[data-theme="light"] {
   --active: #F0F2F5;
   --msg-out: #D9FDD3;
   --msg-in: #FFFFFF;
+  /* Meta text sits on the outgoing bubble. That bubble is pale green here and
+     dark green in the dark theme, so a single white value is invisible in one
+     of them — the timestamp and ticks were unreadable in light mode. */
+  --msg-out-meta: rgba(0,0,0,.45);
+  --msg-out-tick: rgba(0,0,0,.45);
   --text: #111B21;
   --text-secondary: #667781;
   --icon: #54656F;
@@ -529,11 +536,11 @@ button { font-family: inherit; }
 .msg__doc-size { font-size:.72rem; color:var(--text-secondary); }
 .msg__meta { position:absolute; bottom:5px; right:7px; display:flex; align-items:center; gap:4px; pointer-events:none; }
 .msg__time { font-size:.68rem; color:var(--text-secondary); white-space:nowrap; }
-.msg--mine .msg__time { color:rgba(255,255,255,.55); }
+.msg--mine .msg__time { color:var(--msg-out-meta); }
 .msg__tick { display:flex; align-items:center; }
-.msg__tick--sending    { color:rgba(255,255,255,.4); }
-.msg__tick--sent       { color:rgba(255,255,255,.5); }
-.msg__tick--delivered  { color:rgba(255,255,255,.6); }
+.msg__tick--sending    { color:var(--msg-out-tick); opacity:.7; }
+.msg__tick--sent       { color:var(--msg-out-tick); opacity:.85; }
+.msg__tick--delivered  { color:var(--msg-out-tick); }
 .msg__tick--read       { color:#53bdeb; }
 .msg__tick--failed     { color:var(--danger); }
 .msg__highlight { background:rgba(255,215,0,.3); color:var(--text); padding:0 .1em; border-radius:3px; }
@@ -1072,4 +1079,28 @@ button { font-family: inherit; }
 
 @media (min-width: 481px) {
   .popover__item--aura { display: none; }
+}
+
+/* ── Media messages ──────────────────────────────────────────────────────── */
+/* A native <audio controls> has no intrinsic width, so `width:100%` inside a
+   content-sized bubble collapsed it to the bubble's 100px min-width and the
+   player rendered as a stub. Giving it a min-width makes the bubble grow to
+   fit instead. */
+.msg__bubble audio {
+  display: block;
+  width: 100%;
+  min-width: 232px;
+  max-width: 320px;
+  height: 40px;
+  margin: 2px 0 2px;
+}
+/* Media bubbles have no .msg__text to carry the timestamp's reserved padding,
+   so give the bubble itself room at the bottom for the absolutely-positioned
+   meta block. */
+.msg__bubble:has(audio),
+.msg__bubble:has(> img),
+.msg__bubble:has(> video) { padding-bottom: 20px; }
+
+@media (max-width: 480px) {
+  .msg__bubble audio { min-width: 200px; }
 }
