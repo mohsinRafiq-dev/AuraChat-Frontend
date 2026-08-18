@@ -29,7 +29,8 @@ export function SocketProvider({ children }) {
 
     const client = io(SOCKET_URL, {
       auth: { token },
-      transports: ['websocket'],
+      // Try WebSocket first, fall back to polling where upgrades are blocked.
+      transports: ['websocket', 'polling'],
       reconnectionAttempts: Infinity,
       reconnectionDelay: 800,
       reconnectionDelayMax: 8000,

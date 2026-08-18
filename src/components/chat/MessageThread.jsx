@@ -3,6 +3,7 @@ import { useAuth } from '../../contexts/AuthContext.jsx';
 import { useChatContext } from '../../contexts/ChatContext.jsx';
 import { getPeer, peerLabel, peerUserId } from '../../utils/conversation.js';
 import ForwardMessageModal from './ForwardMessageModal.jsx';
+import AuraPanel from './AuraPanel.jsx';
 
 const QUICK_REACTIONS = ['👍', '❤️', '😂', '😮', '😢', '🙏'];
 const SENDER_COLORS = ['#06cf9c', '#e84e76', '#9d5cff', '#f5a623', '#3c8a99', '#d97757', '#7b64a0', '#5b8d5c'];
@@ -169,6 +170,8 @@ export default function MessageThread({ onOpenSidebar, onOpenInfo, onStartCall }
     setReplyTo, reactToMessage, deleteMessage, starMessage, unstarMessage,
   } = useChatContext();
 
+  const [auraOpen, setAuraOpen] = useState(false);
+
   const bottomRef = useRef(null);
   const [searchMode, setSearchMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -321,6 +324,15 @@ export default function MessageThread({ onOpenSidebar, onOpenInfo, onStartCall }
                 </button>
               </>
             )}
+            <button
+              type="button"
+              className={`thread__action-btn${auraOpen ? ' thread__action-btn--active' : ''}`}
+              title="Ask Aura"
+              aria-pressed={auraOpen}
+              onClick={() => { setAuraOpen((p) => !p); setShowHeaderMenu(false); }}
+            >
+              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M12 3l1.9 5.3L19 10l-5.1 1.7L12 17l-1.9-5.3L5 10l5.1-1.7L12 3z"/><path d="M18.5 15.5l.7 1.9 1.8.6-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.6.7-1.9z"/></svg>
+            </button>
             <button type="button" className="thread__action-btn" title="Search" onClick={() => { setSearchMode((p) => !p); setShowHeaderMenu(false); if (searchMode) setSearchQuery(''); }}>
               <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             </button>
@@ -466,6 +478,7 @@ export default function MessageThread({ onOpenSidebar, onOpenInfo, onStartCall }
 
       {lightbox && <Lightbox src={lightbox} onClose={() => setLightbox(null)} />}
       {forwardMsg && <ForwardMessageModal message={forwardMsg} onClose={() => setForwardMsg(null)} />}
+      {auraOpen && <AuraPanel conversationId={c._id} onClose={() => setAuraOpen(false)} />}
     </section>
   );
 }
