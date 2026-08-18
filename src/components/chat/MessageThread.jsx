@@ -32,10 +32,13 @@ function formatLastSeen(iso) {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return '';
 
+  // Compact units on purpose: this renders in the thread header next to the
+  // call and search buttons, where "11 minutes ago" is wide enough to squeeze
+  // the contact's name on a narrow phone.
   const secs = Math.floor((Date.now() - d.getTime()) / 1000);
   if (secs < 45) return 'just now';
-  if (secs < 90) return 'a minute ago';
-  if (secs < 3600) return `${Math.floor(secs / 60)} minutes ago`;
+  if (secs < 90) return '1m ago';
+  if (secs < 3600) return `${Math.floor(secs / 60)}m ago`;
 
   const startOfToday = new Date();
   startOfToday.setHours(0, 0, 0, 0);
@@ -363,14 +366,14 @@ export default function MessageThread({ onOpenSidebar, onOpenInfo, onStartCall }
             )}
             <button
               type="button"
-              className={`thread__action-btn${auraOpen ? ' thread__action-btn--active' : ''}`}
+              className={`thread__action-btn thread__action-btn--aura${auraOpen ? ' thread__action-btn--active' : ''}`}
               title="Ask Aura"
               aria-pressed={auraOpen}
               onClick={() => { setAuraOpen((p) => !p); setShowHeaderMenu(false); }}
             >
               <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M12 3l1.9 5.3L19 10l-5.1 1.7L12 17l-1.9-5.3L5 10l5.1-1.7L12 3z"/><path d="M18.5 15.5l.7 1.9 1.8.6-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.6.7-1.9z"/></svg>
             </button>
-            <button type="button" className="thread__action-btn" title="Search" onClick={() => { setSearchMode((p) => !p); setShowHeaderMenu(false); if (searchMode) setSearchQuery(''); }}>
+            <button type="button" className="thread__action-btn thread__action-btn--search" title="Search" onClick={() => { setSearchMode((p) => !p); setShowHeaderMenu(false); if (searchMode) setSearchQuery(''); }}>
               <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             </button>
             <button type="button" className="thread__action-btn" title="More" onClick={() => { setShowHeaderMenu((p) => !p); setSearchMode(false); }}>
@@ -387,6 +390,9 @@ export default function MessageThread({ onOpenSidebar, onOpenInfo, onStartCall }
         {showHeaderMenu && (
           <div className="popover thread__menu">
             <button type="button" className="popover__item" onClick={() => { onOpenInfo?.(); setShowHeaderMenu(false); }}>Contact info</button>
+            {/* Mirrors the header ✦ button, which is hidden on narrow phones
+                to leave room for the contact name and presence line. */}
+            <button type="button" className="popover__item popover__item--aura" onClick={() => { setAuraOpen(true); setShowHeaderMenu(false); }}>Ask Aura</button>
             <button type="button" className="popover__item" onClick={() => { setSearchMode(true); setShowHeaderMenu(false); }}>Search</button>
             <button type="button" className="popover__item" onClick={() => setShowHeaderMenu(false)}>Mute notifications</button>
             <button type="button" className="popover__item" onClick={() => setShowHeaderMenu(false)}>Clear messages</button>

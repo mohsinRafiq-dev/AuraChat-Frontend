@@ -445,7 +445,10 @@ button { font-family: inherit; }
 .thread__peer-avatar img { width:100%; height:100%; object-fit:cover; }
 .thread__header-info { min-width:0; cursor:pointer; }
 .thread__title { margin:0; font-size:.95rem; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.thread__subtitle { margin:2px 0 0; font-size:.78rem; display:flex; align-items:center; gap:5px; }
+/* Plain text only. It was `display:flex` with no clipping, so a long value
+   like "last seen 11 minutes ago" wrapped to four lines on a 375px screen and
+   pushed the header to nearly a third of the viewport. */
+.thread__subtitle { margin:2px 0 0; font-size:.78rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .thread__subtitle--online { color:var(--green); }
 .thread__subtitle--offline { color:var(--text-secondary); }
 .thread__presence-dot { width:7px; height:7px; border-radius:50%; }
@@ -508,7 +511,14 @@ button { font-family: inherit; }
 .msg__reply-quote:hover { background:rgba(0,0,0,.25); }
 .msg__reply-quote-sender { font-size:.75rem; font-weight:700; color:var(--green); }
 .msg__reply-quote-text { font-size:.8rem; color:var(--text-secondary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:200px; }
-.msg__text { margin:0; font-size:.9rem; color:var(--text); padding-right:52px; }
+/* `.msg__meta` is absolutely positioned over the bubble, so the text has to
+   reserve room for it or the timestamp lands on top of the last words.
+   Outgoing bubbles carry the time *and* delivery ticks (measured 71px);
+   incoming carry the time alone (~50px). One shared value cannot serve both —
+   a single 52px rule left outgoing messages overlapping by ~19px at every
+   viewport width. Slack included for locales with a wider time format. */
+.msg__text { margin:0; font-size:.9rem; color:var(--text); padding-right:58px; }
+.msg--mine .msg__text { padding-right:80px; }
 .msg__text--deleted { color:var(--text-secondary); font-style:italic; }
 .msg__edited-tag { font-size:.7rem; color:var(--text-secondary); margin-right:4px; }
 .msg__image { border-radius:6px; max-width:100%; max-height:260px; object-fit:cover; cursor:pointer; display:block; width:100%; }
@@ -846,9 +856,11 @@ button { font-family: inherit; }
     width:44px; height:44px;
   }
 
-  /* Message bubbles wider on mobile */
+  /* Message bubbles wider on mobile. The timestamp reservation is handled by
+     the variant-specific rules above — a bare `.msg__text` override here was
+     both too small and lower-specificity than `.msg--mine .msg__text`, so it
+     silently did nothing for outgoing bubbles. */
   .msg__outer { max-width:85%; }
-  .msg__text { padding-right:48px; }
 
   /* Conversation row taller for touch */
   .conv-row { padding:12px var(--space-4); }
@@ -1044,4 +1056,20 @@ button { font-family: inherit; }
 @media (prefers-reduced-motion: reduce) {
   .aura { animation: none; }
   .aura__thinking { animation: none; opacity: .7; }
+}
+
+/* ── Narrow phones: reclaim header width ─────────────────────────────────── */
+/* Five 44px touch targets consume 220px of a 375px header, squeezing the
+   contact name and presence line down to an ellipsis. Search already exists
+   in the ⋮ menu, so the standalone button is redundant at this size. */
+@media (max-width: 480px) {
+  /* Both are reachable from the ⋮ menu at this size. */
+  .thread__action-btn--search,
+  .thread__action-btn--aura { display: none; }
+  .thread__header-inner { gap: 4px; }
+  .thread__header-left { gap: 8px; }
+}
+
+@media (min-width: 481px) {
+  .popover__item--aura { display: none; }
 }
