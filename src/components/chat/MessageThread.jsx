@@ -179,6 +179,11 @@ export default function MessageThread({ onOpenSidebar, onOpenInfo, onStartCall }
   const [contextMenu, setContextMenu] = useState(null); // { msg, x, y }
   const [lightbox, setLightbox] = useState(null);
   const [forwardMsg, setForwardMsg] = useState(null);
+  // Long-press tracking for touch devices. Must stay above the early return
+  // below: hooks cannot be called conditionally, and this one previously sat
+  // after it, so selecting a conversation changed the hook count and React
+  // threw "Rendered more hooks than during the previous render".
+  const longPressRef = useRef({ timer: null, fired: false, x: 0, y: 0, startX: 0, startY: 0 });
 
   const list = selectedConversation ? messages[selectedConversation._id] || [] : [];
 
@@ -243,7 +248,6 @@ export default function MessageThread({ onOpenSidebar, onOpenInfo, onStartCall }
   };
 
   // Long-press for touch devices — 500ms hold opens the context menu
-  const longPressRef = useRef({ timer: null, fired: false, x: 0, y: 0, startX: 0, startY: 0 });
   const handleTouchStart = (e, msg) => {
     const t = e.touches?.[0];
     if (!t) return;

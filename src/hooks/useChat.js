@@ -67,6 +67,38 @@ function hasMessage(list, payload) {
   return list.some((m) => messageKey(m) === key);
 }
 
+/**
+ * Refreshes a conversation's `lastMessage` preview and moves it to the top of
+ * the list, mirroring what the server stores on `Conversation.lastMessage`.
+ *
+ * Without this the sidebar keeps whatever preview arrived with the last
+ * `loadConversations()` fetch, so a freshly-sent message leaves the row
+ * reading "No messages yet" until a reload.
+ */
+function touchConversation(conversations, conversationId, message) {
+  if (!conversationId || !message) return conversations;
+  const idx = conversations.findIndex((c) => String(c._id) === String(conversationId));
+  if (idx === -1) return conversations;
+
+  const preview = {
+    text: message.text || '',
+    type: message.type || 'text',
+    senderId: message.senderId?._id || message.senderId,
+    createdAt: message.createdAt || new Date().toISOString()
+  };
+
+  const updated = {
+    ...conversations[idx],
+    lastMessage: preview,
+    updatedAt: preview.createdAt
+  };
+
+  // Newest conversation first, matching the server's `updatedAt: -1` ordering.
+  const next = [...conversations];
+  next.splice(idx, 1);
+  return [updated, ...next];
+}
+
 function chatReducer(state, action) {
   switch (action.type) {
     case 'SET_CONVERSATIONS': {
@@ -122,7 +154,8 @@ function chatReducer(state, action) {
         messages: {
           ...state.messages,
           [action.conversationId]: [...items, action.payload]
-        }
+        },
+        conversations: touchConversation(state.conversations, action.conversationId, action.payload)
       };
     }
     case 'ACK_MESSAGE': {
@@ -142,7 +175,10 @@ function chatReducer(state, action) {
         messages: {
           ...state.messages,
           [action.conversationId]: next
-        }
+        },
+        // Re-run on ack so the preview reflects the server's canonical text
+        // and timestamp rather than the optimistic copy.
+        conversations: touchConversation(state.conversations, action.conversationId, next[idx])
       };
     }
     case 'MESSAGE_SEND_FAILED': {
