@@ -1104,3 +1104,12 @@ button { font-family: inherit; }
 @media (max-width: 480px) {
   .msg__bubble audio { min-width: 200px; }
 }
+
+/* Delivery tick in the conversation list, before the preview text. */
+.conv-row__bottom-line .msg__tick { flex: none; margin-right: 3px; }
+.conv-row__bottom-line .msg__tick svg { width: 15px; height: 10px; }
+/* The list sits on the panel, not on a green bubble, so the bubble-tuned
+   colours would be near-invisible here. */
+.conv-row__bottom-line .msg__tick--sending,
+.conv-row__bottom-line .msg__tick--sent,
+.conv-row__bottom-line .msg__tick--delivered { color: var(--text-secondary); opacity: 1; }

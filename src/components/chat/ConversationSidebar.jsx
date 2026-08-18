@@ -9,6 +9,7 @@ import CallsTab from './CallsTab.jsx';
 import EditProfileModal from './EditProfileModal.jsx';
 import SettingsModal from './SettingsModal.jsx';
 import StarredMessagesModal from './StarredMessagesModal.jsx';
+import MessageTick from './MessageTick.jsx';
 
 const AVATAR_COLORS = [
   '#d97757','#7b64a0','#3c8a99','#5b8d5c',
@@ -343,6 +344,12 @@ function ConvRow({ conv, active, userId, onlineUsers, unreadCounts, blockedUserI
           )}
         </span>
         <span className="conv-row__bottom-line">
+          {/* Delivery state for your own last message, matching the tick shown
+              on the bubble in the thread. Only for messages you sent — a tick
+              against someone else's message would be meaningless. */}
+          {conv.lastMessage
+            && String(conv.lastMessage.senderId) === String(userId)
+            && <MessageTick status={conv.lastMessage.status || 'sent'} />}
           <span className={`conv-row__preview${hasUnread ? ' conv-row__preview--unread' : ''}${!previewText(conv.lastMessage) ? ' conv-row__preview--empty' : ''}`}>
             {previewText(conv.lastMessage) || 'No messages yet'}
           </span>

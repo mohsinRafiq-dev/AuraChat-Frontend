@@ -101,6 +101,8 @@ function touchConversation(conversations, conversationId, message) {
   if (idx === -1) return conversations;
 
   const preview = {
+    messageId: message._id ? String(message._id) : null,
+    status: message.status || 'sent',
     text: message.text || '',
     type: message.type || 'text',
     senderId: message.senderId?._id || message.senderId,
@@ -215,17 +217,27 @@ function chatReducer(state, action) {
     }
     case 'UPDATE_STATUS': {
       const items = state.messages[action.conversationId] || [];
+      const matches = (id) =>
+        action.messageIds ? action.messageIds.includes(id) : id === action.messageId;
+
+      // Mirror the change onto the conversation list's tick, but only when the
+      // status belongs to the message the list is actually previewing.
+      const conversations = state.conversations.map((c) => {
+        if (String(c._id) !== String(action.conversationId)) return c;
+        const lm = c.lastMessage;
+        if (!lm?.messageId || !matches(lm.messageId)) return c;
+        if (lm.status === action.status) return c;
+        return { ...c, lastMessage: { ...lm, status: action.status } };
+      });
+
       return {
         ...state,
+        conversations,
         messages: {
           ...state.messages,
-          [action.conversationId]: items.map((message) => {
-            // Support both single messageId and array of messageIds
-            const match = action.messageIds
-              ? action.messageIds.includes(message._id)
-              : message._id === action.messageId;
-            return match ? { ...message, status: action.status } : message;
-          })
+          [action.conversationId]: items.map((message) =>
+            matches(message._id) ? { ...message, status: action.status } : message
+          )
         }
       };
     }
