@@ -276,8 +276,13 @@ button { font-family: inherit; }
 .auth-backlink:hover { color:var(--text); }
 
 /* ── Landing Page ────────────────────────────────────────────────────────── */
-.landing { min-height:100vh; display:grid; place-items:center; padding:40px var(--space-6); background:var(--panel); }
-.landing__content { max-width:700px; margin:0 auto; text-align:center; }
+.landing { position:relative; overflow:hidden; min-height:100vh; display:grid; place-items:center; padding:40px var(--space-6); background:var(--panel); }
+/* The decorative canvas had no rule at all, so it sat in normal flow at its
+   intrinsic pixel size and pushed the page far wider than a phone viewport,
+   leaving the buttons off-screen. It belongs behind the content and out of
+   the hit-testing path. */
+.landing-orbs { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:0; }
+.landing__content { position:relative; z-index:1; max-width:700px; margin:0 auto; text-align:center; }
 .landing__eyebrow {
   display:inline-block; margin:0 0 var(--space-5); padding:6px var(--space-4); font-size:.75rem; font-weight:700;
   letter-spacing:.15em; text-transform:uppercase; color:var(--green); background:var(--green-soft);
@@ -1161,3 +1166,48 @@ button { font-family: inherit; }
   flex: none;
 }
 .form-check:hover span { color: var(--text); }
+
+/* ── Auth pages on small screens ─────────────────────────────────────────── */
+/* The decorative panel beside the sign-in form had no rule of its own, so it
+   sized to its content (418px) and pushed a 320px phone into horizontal
+   scrolling — the form itself ended up partly off-screen. Constrain it, and
+   below the two-column breakpoint drop it entirely: it is pure decoration and
+   the form is the only thing that matters on a phone. */
+.auth-page__brand-side,
+.auth-page__brand-inner { max-width: 100%; }
+
+/* Centred grid items default to max-content width, so this wrapper sized itself
+   to the panel and the panel resolved its own `min(440px, 100%)` against that —
+   circular, and 418px wide on a 320px phone. Pin the wrapper instead. */
+.auth-page__form-side { width: 100%; max-width: 440px; min-width: 0; }
+.auth-page { grid-template-columns: minmax(0, 1fr); }
+
+@media (max-width: 720px) {
+  .auth-page__brand-side { display: none; }
+}
+
+@media (max-width: 480px) {
+  /* Text links were 18px tall — fine with a mouse, fiddly with a thumb. */
+  .auth-backlink,
+  .auth-linkbtn { padding: 8px 4px; display: inline-block; }
+  .form-check { padding: 6px 0; }
+}
+/* Belt and braces: the Google widget sizes itself, so cap its container too. */
+.auth-google { max-width: 100%; }
+.auth-google > div { max-width: 100%; }
+
+/* ── Composer on narrow screens ──────────────────────────────────────────── */
+/* `.composer__input-wrap` is `flex:1` but inherits `min-width:auto`, so it
+   refused to shrink below the textarea's intrinsic width. On a 320px phone the
+   row needed 332px and the mic button was pushed past the right edge — the
+   send/record control was literally unreachable. `min-width:0` lets the input
+   give up the space instead. */
+.composer__input-wrap { min-width: 0; }
+.composer__input { min-width: 0; }
+
+@media (max-width: 400px) {
+  /* Reclaim a little more room so the input keeps a usable width. */
+  .composer__form { gap: 4px; }
+  .composer__record,
+  .composer__send { width: 46px; height: 46px; }
+}

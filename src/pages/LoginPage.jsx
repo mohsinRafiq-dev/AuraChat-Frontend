@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { skipAuth } from '../config/flags.js';
@@ -12,6 +12,18 @@ export default function LoginPage({ onBackToHome, onGoToRegister }) {
   // Defaults on: a messaging app people return to daily should not ask again
   // every visit. Unchecking scopes the session to the tab, for shared machines.
   const [remember, setRemember] = useState(true);
+  // Google renders its button at a fixed pixel width. Hard-coding 384 pushed a
+  // 320px phone into horizontal scrolling, so track the viewport and clamp to
+  // the range the widget accepts (200-400).
+  const [gsiWidth, setGsiWidth] = useState(() =>
+    Math.min(384, Math.max(200, (typeof window === 'undefined' ? 384 : window.innerWidth) - 96))
+  );
+  useEffect(() => {
+    const onResize = () =>
+      setGsiWidth(Math.min(384, Math.max(200, window.innerWidth - 96)));
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
@@ -159,7 +171,7 @@ export default function LoginPage({ onBackToHome, onGoToRegister }) {
                   useOneTap={false}
                   theme="filled_blue"
                   size="large"
-                  width={384}
+                  width={gsiWidth}
                   text="continue_with"
                   shape="rectangular"
                 />

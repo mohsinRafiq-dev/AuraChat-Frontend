@@ -17,9 +17,15 @@ function FloatingOrbs() {
     ];
 
     function resize() {
-      canvas.width = canvas.offsetWidth * devicePixelRatio;
-      canvas.height = canvas.offsetHeight * devicePixelRatio;
-      ctx.scale(devicePixelRatio, devicePixelRatio);
+      // Measure the CSS box, not offsetWidth. Without a CSS size, offsetWidth
+      // is derived from the width attribute this function sets, so each call
+      // multiplied the canvas by devicePixelRatio again — 300 to 600 to 1200
+      // on a 2x phone, which dragged the whole page wider than the viewport.
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = Math.max(1, Math.round(rect.width * devicePixelRatio));
+      canvas.height = Math.max(1, Math.round(rect.height * devicePixelRatio));
+      // setTransform, not scale: scale compounds on every resize.
+      ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
     }
     resize();
     window.addEventListener('resize', resize);
