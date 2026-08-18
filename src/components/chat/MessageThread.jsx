@@ -22,6 +22,32 @@ function formatTime(iso) {
   return d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
 }
 
+/**
+ * WhatsApp-style relative last-seen text. A bare clock time is ambiguous once
+ * the timestamp is more than a day old, and reads oddly for something that
+ * happened seconds ago.
+ */
+function formatLastSeen(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+
+  const secs = Math.floor((Date.now() - d.getTime()) / 1000);
+  if (secs < 45) return 'just now';
+  if (secs < 90) return 'a minute ago';
+  if (secs < 3600) return `${Math.floor(secs / 60)} minutes ago`;
+
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  if (d >= startOfToday) return `today at ${formatTime(iso)}`;
+
+  const startOfYesterday = new Date(startOfToday);
+  startOfYesterday.setDate(startOfYesterday.getDate() - 1);
+  if (d >= startOfYesterday) return `yesterday at ${formatTime(iso)}`;
+
+  return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+}
+
 function MessageTick({ status }) {
   if (status === 'failed') return <span className="msg__tick msg__tick--failed" title="Failed">✕</span>;
   if (status === 'sending') {
@@ -184,6 +210,13 @@ export default function MessageThread({ onOpenSidebar, onOpenInfo, onStartCall }
   // after it, so selecting a conversation changed the hook count and React
   // threw "Rendered more hooks than during the previous render".
   const longPressRef = useRef({ timer: null, fired: false, x: 0, y: 0, startX: 0, startY: 0 });
+  // Re-render periodically so a relative "last seen" label ages on its own
+  // instead of freezing at whatever it said when the peer went offline.
+  const [, setClockTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setClockTick((n) => n + 1), 30_000);
+    return () => clearInterval(id);
+  }, []);
 
   const list = selectedConversation ? messages[selectedConversation._id] || [] : [];
 
@@ -237,7 +270,7 @@ export default function MessageThread({ onOpenSidebar, onOpenInfo, onStartCall }
       : isOnline
         ? 'online'
         : peer?.lastSeen
-          ? `last seen ${formatTime(peer.lastSeen)}`
+          ? `last seen ${formatLastSeen(peer.lastSeen)}`
           : 'offline';
 
   const handleContextOpen = (e, msg) => {

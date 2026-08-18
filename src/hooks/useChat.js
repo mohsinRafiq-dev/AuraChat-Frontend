@@ -21,6 +21,26 @@ function playPing() {
   } catch {}
 }
 
+/**
+ * Asks for notification permission once, on a real user gesture.
+ *
+ * Previously this was only requested from the Settings modal, so anyone who
+ * never opened Settings had permission stuck at "default" and never received
+ * a single notification — notify() below returns early in that state.
+ *
+ * Opening a conversation is a click, which satisfies the user-activation
+ * requirement browsers place on the prompt.
+ */
+function requestNotificationPermissionOnce() {
+  try {
+    if (!('Notification' in window)) return;
+    if (Notification.permission !== 'default') return;
+    if (localStorage.getItem('aurachat-notif-asked') === '1') return;
+    localStorage.setItem('aurachat-notif-asked', '1');
+    Notification.requestPermission().catch(() => {});
+  } catch {}
+}
+
 function notify(message) {
   const settings = (() => { try { return JSON.parse(localStorage.getItem('aurachat-settings') || '{}'); } catch { return {}; } })();
   playPing();
@@ -213,6 +233,32 @@ function chatReducer(state, action) {
       const next = new Set(state.onlineUsers);
       next.add(String(action.userId));
       return { ...state, onlineUsers: next };
+    }
+    case 'SET_LAST_SEEN': {
+      // Write the timestamp onto every conversation this user participates in
+      // so the thread header can render "last seen …" without a refetch.
+      const uid = String(action.userId);
+      let changed = false;
+      const conversations = state.conversations.map((c) => {
+        const participants = c.participants || [];
+        const idx = participants.findIndex((p) => String(p._id || p.id || p) === uid);
+        if (idx === -1) return c;
+        changed = true;
+        const nextParticipants = [...participants];
+        nextParticipants[idx] = { ...nextParticipants[idx], lastSeen: action.lastSeen };
+        return { ...c, participants: nextParticipants };
+      });
+      if (!changed) return state;
+
+      const selected = state.selectedConversation;
+      const selectedNext =
+        selected && conversations.find((c) => String(c._id) === String(selected._id));
+
+      return {
+        ...state,
+        conversations,
+        selectedConversation: selectedNext || selected
+      };
     }
     case 'USER_WENT_OFFLINE': {
       const next = new Set(state.onlineUsers);
@@ -415,6 +461,7 @@ export function useChat(socket, user) {
     (conversation) => {
       dispatch({ type: 'SELECT_CONVERSATION', payload: conversation });
       if (conversation) {
+        requestNotificationPermissionOnce();
         loadMessages(conversation._id);
         // Clear unread badge for this conversation
         dispatch({ type: 'CLEAR_UNREAD', conversationId: conversation._id });
@@ -640,6 +687,11 @@ export function useChat(socket, user) {
       dispatch({ type: 'SET_ONLINE_USERS', payload: onlineUserIds });
     };
 
+    const handleLastSeen = ({ userId, lastSeen }) => {
+      if (!userId || !lastSeen) return;
+      dispatch({ type: 'SET_LAST_SEEN', userId, lastSeen });
+    };
+
     const handleMessageEdited = (message) => {
       dispatch({ type: 'UPDATE_MESSAGE', conversationId: message.conversationId, payload: message });
     };
@@ -668,6 +720,7 @@ export function useChat(socket, user) {
     socket.on(SOCKET_EVENTS.USER_ONLINE, handleUserOnline);
     socket.on(SOCKET_EVENTS.USER_OFFLINE, handleUserOffline);
     socket.on(SOCKET_EVENTS.USER_PRESENCE_SNAPSHOT, handlePresenceSnapshot);
+    socket.on(SOCKET_EVENTS.USER_LAST_SEEN, handleLastSeen);
     socket.on(SOCKET_EVENTS.MESSAGE_EDITED, handleMessageEdited);
     socket.on(SOCKET_EVENTS.MESSAGE_DELETED, handleMessageDeleted);
     socket.on(SOCKET_EVENTS.MESSAGE_REACTED, handleMessageReacted);
@@ -682,6 +735,7 @@ export function useChat(socket, user) {
       socket.off(SOCKET_EVENTS.USER_ONLINE, handleUserOnline);
       socket.off(SOCKET_EVENTS.USER_OFFLINE, handleUserOffline);
       socket.off(SOCKET_EVENTS.USER_PRESENCE_SNAPSHOT, handlePresenceSnapshot);
+      socket.off(SOCKET_EVENTS.USER_LAST_SEEN, handleLastSeen);
       socket.off(SOCKET_EVENTS.MESSAGE_EDITED, handleMessageEdited);
       socket.off(SOCKET_EVENTS.MESSAGE_DELETED, handleMessageDeleted);
       socket.off(SOCKET_EVENTS.MESSAGE_REACTED, handleMessageReacted);
