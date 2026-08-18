@@ -9,6 +9,9 @@ export default function LoginPage({ onBackToHome, onGoToRegister }) {
   const { login, loginWithGoogle } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  // Defaults on: a messaging app people return to daily should not ask again
+  // every visit. Unchecking scopes the session to the tab, for shared machines.
+  const [remember, setRemember] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
@@ -17,7 +20,7 @@ export default function LoginPage({ onBackToHome, onGoToRegister }) {
     setError(null);
     setSubmitting(true);
     try {
-      await login({ email: email.trim(), password });
+      await login({ email: email.trim(), password, remember });
     } catch (err) {
       const message =
         err?.response?.data?.message ||
@@ -110,6 +113,14 @@ export default function LoginPage({ onBackToHome, onGoToRegister }) {
                   required
                 />
               </div>
+            </label>
+            <label className="form-check">
+              <input
+                type="checkbox"
+                checked={remember}
+                onChange={(e) => setRemember(e.target.checked)}
+              />
+              <span>Keep me logged in</span>
             </label>
             {error ? <p className="form-error">{error}</p> : null}
             <button className="btn btn--primary btn--block" type="submit" disabled={submitting}>

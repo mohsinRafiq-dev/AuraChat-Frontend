@@ -3,6 +3,7 @@ import api from '../services/api.js';
 import { SOCKET_EVENTS } from '../services/socketEvents.js';
 import { createClientId } from '../lib/ids.js';
 import { peerUserId } from '../utils/conversation.js';
+import { getLastConversationId, setLastConversationId } from '../services/session.js';
 
 // Short ping tone for incoming messages (WebAudio — no asset needed)
 let audioCtx = null;
@@ -472,6 +473,9 @@ export function useChat(socket, user) {
   const selectConversation = useCallback(
     (conversation) => {
       dispatch({ type: 'SELECT_CONVERSATION', payload: conversation });
+      // Remembered so the next visit reopens where the user left off instead
+      // of dropping them on the empty "select a chat" placeholder.
+      setLastConversationId(conversation?._id ?? null);
       if (conversation) {
         requestNotificationPermissionOnce();
         loadMessages(conversation._id);
@@ -656,6 +660,30 @@ export function useChat(socket, user) {
   useEffect(() => {
     loadConversations();
   }, [loadConversations]);
+
+  /**
+   * Reopen the conversation the user was last in.
+   *
+   * Runs once, after the first load brings conversations in, and only when
+   * nothing is selected yet — so it restores on a fresh visit but never yanks
+   * the user out of a chat they opened themselves. A stale id (conversation
+   * deleted, or the user signed in as someone else) simply finds no match and
+   * is cleared.
+   */
+  const restoredRef = useRef(false);
+  useEffect(() => {
+    if (restoredRef.current) return;
+    if (!state.conversations.length) return;
+    restoredRef.current = true;
+
+    const savedId = getLastConversationId();
+    if (!savedId) return;
+    if (selectedRef.current) return;
+
+    const match = state.conversations.find((c) => String(c._id) === String(savedId));
+    if (match) selectConversation(match);
+    else setLastConversationId(null);
+  }, [state.conversations, selectConversation]);
 
   useEffect(() => {
     if (!socket) return;

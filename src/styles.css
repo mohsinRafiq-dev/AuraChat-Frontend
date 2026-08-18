@@ -1142,3 +1142,22 @@ button { font-family: inherit; }
 }
 /* Trim the bubble padding around media so the picture reaches the edges. */
 .msg__bubble:has(.msg__image-container):not(:has(.msg__text)) { padding: 3px 3px 3px 3px; }
+
+/* "Keep me logged in" checkbox on the auth forms. */
+.form-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: .86rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  user-select: none;
+}
+.form-check input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--green);
+  cursor: pointer;
+  flex: none;
+}
+.form-check:hover span { color: var(--text); }

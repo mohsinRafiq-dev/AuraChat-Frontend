@@ -1,6 +1,14 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import api from '../services/api.js';
 import { skipAuth } from '../config/flags.js';
+import {
+  getStoredToken,
+  getRememberPreference,
+  storeToken,
+  clearSession,
+  isTokenExpired,
+  shouldRefreshToken
+} from '../services/session.js';
 
 const AuthContext = createContext(null);
 
@@ -24,7 +32,17 @@ function describeProfileFailure(error) {
 }
 
 export function AuthProvider({ children }) {
-  const [token, setToken] = useState(() => (skipAuth ? SKIP_TOKEN : localStorage.getItem(STORAGE_KEY)));
+  const [token, setToken] = useState(() => {
+    if (skipAuth) return SKIP_TOKEN;
+    const stored = getStoredToken();
+    // Booting with a token we can already see is expired means a guaranteed
+    // 401 and a flash of the app before being kicked to the login screen.
+    if (stored && isTokenExpired(stored)) {
+      clearSession();
+      return null;
+    }
+    return stored;
+  });
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [skipBoot, setSkipBoot] = useState(0);
@@ -137,36 +155,82 @@ export function AuthProvider({ children }) {
     };
   }, [token, logout, skipAuth]);
 
-  const persistSession = useCallback((newToken, profile) => {
+  const persistSession = useCallback((newToken, profile, remember) => {
     setSkipDevPaused(false);
-    localStorage.setItem(STORAGE_KEY, newToken);
+    // `remember` decides localStorage (survives closing the browser) vs
+    // sessionStorage (gone with the tab). Undefined keeps the existing choice,
+    // which is what a token refresh wants.
+    storeToken(newToken, remember);
     api.setToken(newToken);
     setToken(newToken);
-    setUser(profile);
+    if (profile) setUser(profile);
   }, []);
 
+  /**
+   * Keeps the session alive.
+   *
+   * Tokens are signed for a fixed 7 days with no way to extend them, so a user
+   * who came back on day eight was logged out with no warning. Swapping a
+   * still-valid token for a fresh one turns that into a sliding window: normal
+   * use never expires, a long absence still does.
+   *
+   * Runs on boot, hourly while the app is open, and whenever the tab regains
+   * focus — a laptop that slept for two days wakes up and renews immediately
+   * rather than waiting for the next interval.
+   */
+  useEffect(() => {
+    if (skipAuth || !token || !user) return undefined;
+
+    let cancelled = false;
+
+    const renew = async () => {
+      if (cancelled || !shouldRefreshToken(token)) return;
+      try {
+        const response = await api.post('/api/auth/refresh');
+        if (!cancelled && response.data?.token) {
+          // No `remember` argument: keep whatever storage the user chose.
+          persistSession(response.data.token, response.data.user);
+        }
+      } catch {
+        // A failure here is not fatal — the current token is still valid until
+        // it expires, and the 401 interceptor handles it if it does.
+      }
+    };
+
+    renew();
+    const interval = setInterval(renew, 60 * 60 * 1000);
+    const onFocus = () => renew();
+    window.addEventListener('focus', onFocus);
+
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+      window.removeEventListener('focus', onFocus);
+    };
+  }, [token, user, persistSession]);
+
   const login = useCallback(
-    async ({ email, password }) => {
+    async ({ email, password, remember = true }) => {
       const response = await api.post('/api/auth/login', { email, password });
-      persistSession(response.data.token, response.data.user);
+      persistSession(response.data.token, response.data.user, remember);
       return response.data.user;
     },
     [persistSession]
   );
 
   const loginWithGoogle = useCallback(
-    async (credential) => {
+    async (credential, remember = true) => {
       const response = await api.post('/api/auth/google', { credential });
-      persistSession(response.data.token, response.data.user);
+      persistSession(response.data.token, response.data.user, remember);
       return response.data.user;
     },
     [persistSession]
   );
 
   const register = useCallback(
-    async ({ email, password, username }) => {
+    async ({ email, password, username, remember = true }) => {
       const response = await api.post('/api/auth/register', { email, password, username });
-      persistSession(response.data.token, response.data.user);
+      persistSession(response.data.token, response.data.user, remember);
       return response.data.user;
     },
     [persistSession]
