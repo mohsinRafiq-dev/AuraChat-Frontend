@@ -1097,9 +1097,7 @@ button { font-family: inherit; }
 /* Media bubbles have no .msg__text to carry the timestamp's reserved padding,
    so give the bubble itself room at the bottom for the absolutely-positioned
    meta block. */
-.msg__bubble:has(audio),
-.msg__bubble:has(> img),
-.msg__bubble:has(> video) { padding-bottom: 20px; }
+.msg__bubble:has(audio) { padding-bottom: 20px; }
 
 @media (max-width: 480px) {
   .msg__bubble audio { min-width: 200px; }
@@ -1113,3 +1111,34 @@ button { font-family: inherit; }
 .conv-row__bottom-line .msg__tick--sending,
 .conv-row__bottom-line .msg__tick--sent,
 .conv-row__bottom-line .msg__tick--delivered { color: var(--text-secondary); opacity: 1; }
+
+/* ── Timestamp over a photo or video ─────────────────────────────────────── */
+/* The meta block is absolutely positioned inside the bubble, so on an
+   uncaptioned image it lands directly on the picture — where there is no
+   guaranteed contrast. A pale photo swallowed the white time entirely.
+   A scrim behind it keeps the time and tick legible over any image, which is
+   what every messenger does. Captioned media is unaffected: the caption
+   supplies a normal .msg__text row for the meta to sit beside. */
+.msg__bubble:has(.msg__image-container):not(:has(.msg__text)) .msg__meta,
+.msg__bubble:has(> video):not(:has(.msg__text)) .msg__meta {
+  bottom: 0;
+  right: 0;
+  padding: 14px 8px 5px 14px;
+  border-radius: 0 0 7px 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, .5), rgba(0, 0, 0, 0));
+}
+.msg__bubble:has(.msg__image-container):not(:has(.msg__text)) .msg__time,
+.msg__bubble:has(> video):not(:has(.msg__text)) .msg__time {
+  color: rgba(255, 255, 255, .95);
+}
+.msg__bubble:has(.msg__image-container):not(:has(.msg__text)) .msg__tick--sending,
+.msg__bubble:has(.msg__image-container):not(:has(.msg__text)) .msg__tick--sent,
+.msg__bubble:has(.msg__image-container):not(:has(.msg__text)) .msg__tick--delivered,
+.msg__bubble:has(> video):not(:has(.msg__text)) .msg__tick--sending,
+.msg__bubble:has(> video):not(:has(.msg__text)) .msg__tick--sent,
+.msg__bubble:has(> video):not(:has(.msg__text)) .msg__tick--delivered {
+  color: rgba(255, 255, 255, .95);
+  opacity: 1;
+}
+/* Trim the bubble padding around media so the picture reaches the edges. */
+.msg__bubble:has(.msg__image-container):not(:has(.msg__text)) { padding: 3px 3px 3px 3px; }
